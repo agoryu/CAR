@@ -1,7 +1,5 @@
 package ftp;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -15,7 +13,6 @@ public class Serveur {
 	
 	private static final String ERROR_SOCKET_NULL = "Erreur socket null";
 	private static final String ERROR_SERVER_NULL = "Erreur serveur socket null";
-	private static final String ERROR_CLOSE_SOCKET_CLIENT = "Erreur lors de la fermetur du socket client";
 	private static final String ERROR_SOCKET_CLIENT = "Erreur lors de la reception du socket client";
 	private static final String ERROR_SERVER_SOCKET = "Erreur lors de l'initialisation du serveur socket";
 	private static final String ERROR_ARGUMENT = "Pas assez d'arguemnt pour lancer le serveur";
@@ -25,12 +22,12 @@ public class Serveur {
 	
 	public static void main(String[] args) {
 		
-		/*if(args.length < 1) {
+		if(args.length < 1) {
 			System.out.println(ERROR_ARGUMENT);
 			return;
-		}*/
+		}
 		
-		final String directory = " ";//args[1];
+		final String directory = args[0];
 		ServerSocket ss = null;
 		
 		/* creation du socket du serveur */
@@ -45,35 +42,17 @@ public class Serveur {
 			/* reception du socket client */
 			if((socket = getSocket(ss)) == null) {
 				System.err.println(ERROR_SOCKET_NULL);
-			} else {
-				OutputStream os = null;
-				try {
-					os = socket.getOutputStream();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				DataOutputStream dos = new DataOutputStream(os);
-				try {
-					dos.writeBytes("hello world\r\n");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
+			} 
 			
 			createThread(socket, directory);
 			
-			try {
-				socket.close();
-			} catch (final IOException e) {
-				System.err.println(ERROR_CLOSE_SOCKET_CLIENT);
-			}
 	    }
 	}
 
+	/** Création d'un socket la connexion d'un client
+	 * @param ss Serveur qui doit créer la connexion
+	 * @return Socket correspondant à la connexion d'un client
+	 */
 	private static Socket getSocket(final ServerSocket ss) {
 		
 		Socket socket = null;
@@ -86,6 +65,9 @@ public class Serveur {
 		return socket;
 	}
 
+	/** Création d'un socket serveur
+	 * @return socket serveur
+	 */
 	private static ServerSocket getServerSocket() {
 		
 		ServerSocket ss = null;
@@ -98,6 +80,10 @@ public class Serveur {
 		return ss;
 	}
 	
+	/** Création d'un thread qui va interagir avec un client connecté
+	 * @param socket Socket de connection
+	 * @param directory Répertoir à la disposition d'un client 
+	 */
 	private static void createThread(final Socket socket, final String directory) {
 		final FtpRequest ft = new FtpRequest(socket, directory);
 		final Thread t = new Thread(ft);
