@@ -43,7 +43,7 @@ public class Serveur {
 			if((socket = getSocket(ss)) == null) {
 				System.err.println(ERROR_SOCKET_NULL);
 			} 
-			
+
 			createThread(socket, directory);
 			
 	    }
