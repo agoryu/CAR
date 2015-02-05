@@ -2,6 +2,8 @@ package ftp;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Serveur {
@@ -16,6 +18,8 @@ public class Serveur {
 	private static final String ERROR_SOCKET_CLIENT = "Erreur lors de la reception du socket client";
 	private static final String ERROR_SERVER_SOCKET = "Erreur lors de l'initialisation du serveur socket";
 	private static final String ERROR_ARGUMENT = "Pas assez d'arguemnt pour lancer le serveur";
+	
+	private static Map<String,String> bdd;
 	
 	
 	public static final int port = 1024;
@@ -36,6 +40,11 @@ public class Serveur {
 			return;
 		}
 		Socket socket = null;
+		
+		bdd = new HashMap<>();
+		bdd.put("anonymous", "");
+		bdd.put("elliot", "link");
+		bdd.put("salsabil", "ok");
 		
 		while(true){
 			
@@ -85,7 +94,7 @@ public class Serveur {
 	 * @param directory Répertoir à la disposition d'un client 
 	 */
 	private static void createThread(final Socket socket, final String directory) {
-		final FtpRequest ft = new FtpRequest(socket, directory);
+		final FtpRequest ft = new FtpRequest(socket, directory, bdd);
 		final Thread t = new Thread(ft);
 		t.start();	
 	}

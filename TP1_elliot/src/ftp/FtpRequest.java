@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -16,17 +17,13 @@ public class FtpRequest implements Runnable {
 	private static final String ANONYMOUS = "anonymous";
 
 	/* message envoyé */
-	private static final String WELCOME = "\r\nBienvenue sur le serveur FTP de Elliot Vanegue et Salsabile Hakimi\r\n";
-	private static final String GOODBYE = "\r\n Goodbye. \r\n";
-	private static final String LOGIN_OK = "230 Login successful." + END_LINE;
-	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site."
-			+ END_LINE;
-	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments."
-			+ END_LINE;
-	private static final String SPECIFY_MDP = "331 Please specify the password."
-			+ END_LINE;
-	private static final String ERROR_IDENTIFICATION = "430 Error login."
-			+ END_LINE; // TODO changer le message
+	private static final String WELCOME = "220 Service ready for new user.";
+	private static final String GOODBYE = "221 Goodbye."; // TODO
+	private static final String LOGIN_OK = "230 Login successful.";
+	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site.";
+	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments.";
+	private static final String SPECIFY_MDP = "331 Please specify the password.";
+	private static final String ERROR_IDENTIFICATION = "430 Invalid username or password.";
 
 	/* message pour le developpeur */
 	private static final String ERROR_MESSAGE = "Erreur dans l'envoie du message au client";
@@ -37,12 +34,12 @@ public class FtpRequest implements Runnable {
 	private static final String ERROR_CLOSE_SOCKET_CLIENT = "Erreur lors de la fermetur du socket client";
 
 	/* nom de commande */
-	private static final String USER = "user";
-	private static final String PASS = "pass";
-	private static final String RETR = "retr";
-	private static final String STOR = "stor";
-	private static final String LIST = "list";
-	private static final String QUIT = "quit";
+	private static final String USER = "USER";
+	private static final String PASS = "PASS";
+	private static final String RETR = "RETR";
+	private static final String STOR = "STOR";
+	private static final String LIST = "LIST";
+	private static final String QUIT = "QUIT";
 
 	/**
 	 * Objet permettant la lecture sur la connection
@@ -78,15 +75,19 @@ public class FtpRequest implements Runnable {
 	 * Login de l'utilisateur
 	 */
 	private String login;
-
+	
 	/**
-	 * Mot de passe de l'utilisateur
+	 * Base de données contenant les noms et mots de passe des utilisateur
 	 */
-	private String mdp;
+	private Map<String,String> bdd;
 
-	public FtpRequest(final Socket socket, final String directory) {
+	public FtpRequest(final Socket socket, final String directory, final Map<String, String> bdd) {
 
-		if (socket == null || directory == null) {
+		if (socket == null || directory == null || bdd == null) {
+			throw new NullPointerException(ERROR_ARGUMENT);
+		}
+		
+		if (bdd.isEmpty()) {
 			throw new NullPointerException(ERROR_ARGUMENT);
 		}
 
@@ -105,8 +106,9 @@ public class FtpRequest implements Runnable {
 		isFinish = false;
 		isConnected = false;
 
+		this.bdd = bdd;
+		
 		login = "";
-		mdp = "";
 
 	}
 
@@ -165,16 +167,42 @@ public class FtpRequest implements Runnable {
 		}
 
 		/* TODO recherche dans un fichier ou une base */
-		login = parametre;
-
-		sendMessage(SPECIFY_MDP);
+		if(bdd.containsKey(parametre)) {
+			login = parametre;
+			sendMessage(SPECIFY_MDP);
+		} else {
+			sendMessage(ERROR_IDENTIFICATION);
+		}
+		
 
 	}
 
 	public void processPASS(final String parametre) {
-		System.out.println("je passe dans pass");
-		// TODO
-		sendMessage(LOGIN_OK);
+		
+		if (parametre == null) {
+			sendMessage(ERROR_PARAMETER);
+			return;
+		}
+
+		if (isConnected) {
+			return;
+		}
+		
+		if(!checkCommand(login)) {
+			sendMessage(ERROR_IDENTIFICATION);
+		}
+		
+		if(login.compareTo(ANONYMOUS) == 0) {
+			sendMessage(LOGIN_OK);
+		}
+		
+		if(bdd.get(login).compareTo(parametre) == 0) {
+			isConnected = true;
+			sendMessage(LOGIN_OK);
+		} else {
+			sendMessage(ERROR_IDENTIFICATION);
+		}
+		
 	}
 
 	public void processRETR(final String parametre) {
@@ -258,7 +286,7 @@ public class FtpRequest implements Runnable {
 		}
 
 		String instructionFormat = instruction.trim();
-		instructionFormat = instructionFormat.toLowerCase();
+		//instructionFormat = instructionFormat.toLowerCase();
 		instructionFormat = instructionFormat.replaceAll("[\r\n]+", "");
 
 		String parametreFormat = parametre.trim();// enleve les espaces
@@ -359,7 +387,6 @@ public class FtpRequest implements Runnable {
 
 		try {
 			writer.writeBytes(message + END_LINE);
-			System.out.println("ok");
 		} catch (final IOException e) {
 			System.err.println(ERROR_MESSAGE);
 			return false;
