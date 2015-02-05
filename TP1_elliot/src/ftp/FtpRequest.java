@@ -11,19 +11,23 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class FtpRequest implements Runnable {
-	
+
 	private static final String END_LINE = "\r\n";
 	private static final String ANONYMOUS = "anonymous";
-	private static final String PROMPT = "ftp>";
-	
+
 	/* message envoyé */
 	private static final String WELCOME = "\r\nBienvenue sur le serveur FTP de Elliot Vanegue et Salsabile Hakimi\r\n";
 	private static final String GOODBYE = "\r\n Goodbye. \r\n";
 	private static final String LOGIN_OK = "230 Login successful." + END_LINE;
-	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site." + END_LINE;
-	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments." + END_LINE;
-	private static final String SPECIFY_MDP = "331 Please specify the password." + END_LINE;
-	
+	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site."
+			+ END_LINE;
+	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments."
+			+ END_LINE;
+	private static final String SPECIFY_MDP = "331 Please specify the password."
+			+ END_LINE;
+	private static final String ERROR_IDENTIFICATION = "430 Error login."
+			+ END_LINE; // TODO changer le message
+
 	/* message pour le developpeur */
 	private static final String ERROR_MESSAGE = "Erreur dans l'envoie du message au client";
 	private static final String ERROR_OUTPUTSTREAM = "Erreur dans l'initialisation du OutputStream";
@@ -31,7 +35,7 @@ public class FtpRequest implements Runnable {
 	private static final String ERROR_READ = "Erreur lors de la lecture";
 	private static final String ERROR_INPUT = "Erreur sur la creation de l'InputStream";
 	private static final String ERROR_CLOSE_SOCKET_CLIENT = "Erreur lors de la fermetur du socket client";
-	
+
 	/* nom de commande */
 	private static final String USER = "user";
 	private static final String PASS = "pass";
@@ -39,14 +43,14 @@ public class FtpRequest implements Runnable {
 	private static final String STOR = "stor";
 	private static final String LIST = "list";
 	private static final String QUIT = "quit";
-	
+
 	/**
-	 * Objet permettant la lecture sur la connection 
+	 * Objet permettant la lecture sur la connection
 	 */
 	private BufferedReader reader;
-	
+
 	/**
-	 * Objet permettant l'écriture sur la connection 
+	 * Objet permettant l'écriture sur la connection
 	 */
 	private DataOutputStream writer;
 
@@ -54,27 +58,27 @@ public class FtpRequest implements Runnable {
 	 * Connection avec un client
 	 */
 	private Socket socket;
-	
+
 	/**
-	 * Repertoir à la disposition du client
+	 * Repertoire à la disposition du client
 	 */
-	private String direcory;
-	
+	private String direcory; // chemin du fichier
+
 	/**
 	 * Variable permettant la fermeture de la connection
 	 */
 	private boolean isFinish;
-	
+
 	/**
-	 * Vérifie si l'utilisateur est connecté 
+	 * Vérifie si l'utilisateur est connecté
 	 */
 	private boolean isConnected;
-	
+
 	/**
 	 * Login de l'utilisateur
 	 */
 	private String login;
-	
+
 	/**
 	 * Mot de passe de l'utilisateur
 	 */
@@ -97,10 +101,10 @@ public class FtpRequest implements Runnable {
 		if (reader == null) {
 			throw new NullPointerException(ERROR_ARGUMENT);
 		}
-		
+
 		isFinish = false;
 		isConnected = false;
-		
+
 		login = "";
 		mdp = "";
 
@@ -108,8 +112,7 @@ public class FtpRequest implements Runnable {
 
 	@Override
 	public void run() {
-		sendMessage(END_LINE);
-		//sendMessage(WELCOME);
+		sendMessage(WELCOME);
 		processRequest();
 
 	}
@@ -118,22 +121,15 @@ public class FtpRequest implements Runnable {
 	 * Attend des commandes de la part du client courant
 	 */
 	public void processRequest() {
-		
-		boolean isPromptWrite = false;
 
 		while (!isFinish) {
-			
-			/* affichage du prompt */
-			if(!isPromptWrite) {
-				isPromptWrite = true;
-				sendMessage(PROMPT);
-			}
 
 			/* gestion de la requete par un thread */
 			String commande = null;
 			commande = getCommand(reader);
 
 			if (checkCommand(commande)) {
+				// Recupérer le nom de la commande
 				final StringTokenizer parse = new StringTokenizer(commande, " ");
 				final String instruction = parse.nextToken();
 
@@ -149,37 +145,35 @@ public class FtpRequest implements Runnable {
 				/* execution de la commande */
 				try {
 					runCommand(instruction, parse.nextToken());
-				}catch (final NoSuchElementException e) {
+				} catch (final NoSuchElementException e) {
 					runCommand(instruction, "");
 				}
-				
-				isPromptWrite = false;
 			}
 		}
 
 	}
 
 	public void processUSER(final String parametre) {
-		
-		if(!checkCommand(parametre)) {
+
+		if (!checkCommand(parametre)) {
 			sendMessage(ERROR_PARAMETER);
 			return;
 		}
-		
-		if(isConnected) {
+
+		if (isConnected) {
 			return;
 		}
-		
+
 		/* TODO recherche dans un fichier ou une base */
 		login = parametre;
-		
+
 		sendMessage(SPECIFY_MDP);
-		
+
 	}
 
 	public void processPASS(final String parametre) {
 		System.out.println("je passe dans pass");
-		//TODO
+		// TODO
 		sendMessage(LOGIN_OK);
 	}
 
@@ -197,13 +191,13 @@ public class FtpRequest implements Runnable {
 
 	public void processQUIT() {
 		try {
+			sendMessage(GOODBYE);
 			socket.close();
 		} catch (final IOException e) {
 			System.err.println(ERROR_CLOSE_SOCKET_CLIENT);
 		}
-		
+
 		isFinish = true;
-		sendMessage(GOODBYE);
 
 	}
 
@@ -257,38 +251,45 @@ public class FtpRequest implements Runnable {
 	 *            Paramètre de la commande
 	 */
 	private void runCommand(final String instruction, final String parametre) {
-		
-		if(instruction == null) {
+
+		if (instruction == null) {
 			sendMessage(ERROR_NO_COMMAND);
 			return;
 		}
-		
+
 		String instructionFormat = instruction.trim();
 		instructionFormat = instructionFormat.toLowerCase();
 		instructionFormat = instructionFormat.replaceAll("[\r\n]+", "");
-		
+
+		String parametreFormat = parametre.trim();// enleve les espaces
+		parametreFormat = parametreFormat.toLowerCase();// met en minuscule
+		parametreFormat = parametreFormat.replaceAll("[\r\n]+", "");// enléve
+																	// les
+																	// retours
+																	// chariots
+
 		System.out.println(instruction + " " + parametre);
-		
-		switch(instructionFormat) {
-		case USER : 
-			processUSER(parametre);
+
+		switch (instructionFormat) {
+		case USER:
+			processUSER(parametreFormat);
 			break;
-		case PASS : 
-			processPASS(parametre);
+		case PASS:
+			processPASS(parametreFormat);
 			break;
-		case RETR : 
-			processRETR(parametre);
+		case RETR:
+			processRETR(parametreFormat);
 			break;
-		case STOR : 
-			processSTOR(parametre);
+		case STOR:
+			processSTOR(parametreFormat);
 			break;
-		case LIST : 
-			processLIST(parametre);
+		case LIST:
+			processLIST(parametreFormat);
 			break;
-		case QUIT : 
+		case QUIT:
 			processQUIT();
 			break;
-		default :
+		default:
 			sendMessage(ERROR_NO_COMMAND);
 			break;
 		}
@@ -328,11 +329,11 @@ public class FtpRequest implements Runnable {
 	private BufferedReader getNewReader(final Socket socket) {
 
 		InputStream in = null;
-		
-		if(socket == null) {
+
+		if (socket == null) {
 			return null;
 		}
-		
+
 		try {
 			in = socket.getInputStream();
 		} catch (final IOException e) {
@@ -358,6 +359,7 @@ public class FtpRequest implements Runnable {
 
 		try {
 			writer.writeBytes(message + END_LINE);
+			System.out.println("ok");
 		} catch (final IOException e) {
 			System.err.println(ERROR_MESSAGE);
 			return false;
