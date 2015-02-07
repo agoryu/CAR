@@ -389,6 +389,7 @@ public class FtpRequest implements Runnable {
 			writer.writeBytes(message + END_LINE);
 		} catch (final IOException e) {
 			System.err.println(ERROR_MESSAGE);
+			e.printStackTrace();
 			return false;
 		}
 
