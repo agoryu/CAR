@@ -11,6 +11,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
+import file.FileMagnagement;
+
+/** 
+ * @author agoryu
+ *
+ */
 public class FtpRequest implements Runnable {
 
 	private static final String END_LINE = "\r\n";
@@ -24,6 +30,7 @@ public class FtpRequest implements Runnable {
 	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments.";
 	private static final String SPECIFY_MDP = "331 Please specify the password.";
 	private static final String ERROR_IDENTIFICATION = "430 Invalid username or password.";
+	private static final String ERROR_SEND_FILE = "Erreur lors de la lecture du fichier"; //TODO voir le message
 
 	/* message pour le developpeur */
 	private static final String ERROR_MESSAGE = "Erreur dans l'envoie du message au client";
@@ -32,6 +39,8 @@ public class FtpRequest implements Runnable {
 	private static final String ERROR_READ = "Erreur lors de la lecture";
 	private static final String ERROR_INPUT = "Erreur sur la creation de l'InputStream";
 	private static final String ERROR_CLOSE_SOCKET_CLIENT = "Erreur lors de la fermetur du socket client";
+	private static final String ERROR_SOCKET = "Erreur lors de la creation du socket serveur";
+
 
 	/* nom de commande */
 	private static final String USER = "USER";
@@ -40,6 +49,8 @@ public class FtpRequest implements Runnable {
 	private static final String STOR = "STOR";
 	private static final String LIST = "LIST";
 	private static final String QUIT = "QUIT";
+	private static final String PORT = "PORT";
+	private static final String PWD = "PWD";
 
 	/**
 	 * Objet permettant la lecture sur la connection
@@ -80,6 +91,16 @@ public class FtpRequest implements Runnable {
 	 * Base de données contenant les noms et mots de passe des utilisateur
 	 */
 	private Map<String,String> bdd;
+	
+	/**
+	 * Port spécifié par l'utilisateur pour le telechargement d'un fichier
+	 */
+	private String portDownload;
+	
+	/**
+	 * Adresse spécifié par l'utilisateur pour le telechargement d'un fichier
+	 */
+	private String ipDownload;
 
 	public FtpRequest(final Socket socket, final String directory, final Map<String, String> bdd) {
 
@@ -155,9 +176,9 @@ public class FtpRequest implements Runnable {
 
 	}
 
-	public void processUSER(final String parametre) {
+	public void processUSER(final String login) {
 
-		if (!checkCommand(parametre)) {
+		if (!checkCommand(login)) {
 			sendMessage(ERROR_PARAMETER);
 			return;
 		}
@@ -167,8 +188,8 @@ public class FtpRequest implements Runnable {
 		}
 
 		/* TODO recherche dans un fichier ou une base */
-		if(bdd.containsKey(parametre)) {
-			login = parametre;
+		if(bdd.containsKey(login)) {
+			this.login = login;
 			sendMessage(SPECIFY_MDP);
 		} else {
 			sendMessage(ERROR_IDENTIFICATION);
@@ -177,9 +198,9 @@ public class FtpRequest implements Runnable {
 
 	}
 
-	public void processPASS(final String parametre) {
+	public void processPASS(final String mdp) {
 		
-		if (parametre == null) {
+		if (mdp == null) {
 			sendMessage(ERROR_PARAMETER);
 			return;
 		}
@@ -193,10 +214,11 @@ public class FtpRequest implements Runnable {
 		}
 		
 		if(login.compareTo(ANONYMOUS) == 0) {
+			isConnected = true;
 			sendMessage(LOGIN_OK);
 		}
 		
-		if(bdd.get(login).compareTo(parametre) == 0) {
+		if(bdd.get(login).compareTo(mdp) == 0) {
 			isConnected = true;
 			sendMessage(LOGIN_OK);
 		} else {
@@ -205,16 +227,89 @@ public class FtpRequest implements Runnable {
 		
 	}
 
-	public void processRETR(final String parametre) {
-		System.out.println("je passe dans retr");
+	public void processPORT(final String connectionInfo) {
+		
+		if(!checkCommand(connectionInfo)) {
+			sendMessage(ERROR_PARAMETER);
+			return;
+		}
+		
+		final StringTokenizer parseParameter = new StringTokenizer(connectionInfo, " ");
+		
+		final String port = parseParameter.nextToken();
+		final String ip = parseParameter.nextToken();
+		
+		if(!checkCommand(port) || !checkCommand(ip)) {
+			sendMessage(ERROR_PARAMETER);
+			return;
+		}
+		
+		portDownload = port;
+		ipDownload = ip;
+		
+	}
+	
+	public void processRETR(final String filename) {
+		
+		if(!checkCommand(filename)) {
+			sendMessage(ERROR_PARAMETER);
+			return;
+		}
+		
+		/* voir le message a mettre */
+		if(!checkCommand(portDownload) || !checkCommand(ipDownload)) {
+			sendMessage(ERROR_PARAMETER);
+			return;
+		}
+		
+		/* récupere le fichier dont le nom est dans parametre */
+		//pas oublier la verif
+		final FileMagnagement management = new FileMagnagement();
+		final byte[] data = management.lire(filename);
+		
+		Integer iport = null;
+		
+		try {
+			iport = Integer.parseInt(portDownload);
+		} catch(final NumberFormatException e) {
+			sendMessage(ERROR_PARAMETER);
+		}
+		
+		Socket socket = null;
+		
+		try {
+			socket = new Socket(ipDownload, iport);
+		} catch (final IOException e) {
+			System.err.println(ERROR_SOCKET);
+		}
+		
+		final DataOutputStream writerFile = getNewWriter(socket);
+		try {
+			writerFile.write(data);
+		} catch (final IOException e) {
+			System.err.println(ERROR_SEND_FILE);
+		} finally {
+            try {
+                if (socket != null) {
+                	socket.close();
+                }
+            } catch (final IOException e) {
+                System.err.println(ERROR_CLOSE_SOCKET_CLIENT);
+            }
+        }
 	}
 
+	//TODO recevoir , lire la socket et écrire le contenue dans le ftp
 	public void processSTOR(final String parametre) {
 		System.out.println("je passe dans stor");
 	}
 
 	public void processLIST(final String parametre) {
 		System.out.println("je passe dans list");
+	}
+	
+	public void processPWD(final String parametre) {
+		sendMessage(direcory);
 	}
 
 	public void processQUIT() {
@@ -316,6 +411,12 @@ public class FtpRequest implements Runnable {
 			break;
 		case QUIT:
 			processQUIT();
+			break;
+		case PORT:
+			processPORT(parametreFormat);
+			break;
+		case PWD:
+			processPWD(parametreFormat);
 			break;
 		default:
 			sendMessage(ERROR_NO_COMMAND);

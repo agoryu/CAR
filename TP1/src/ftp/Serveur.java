@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/** Classe gérant les connextions au serveur ftp
+ * @author agoryu
+ *
+ */
 public class Serveur {
 	
 	/* nc -v ftp.univ-lille1.fr 21 */
