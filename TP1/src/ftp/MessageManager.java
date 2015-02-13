@@ -11,10 +11,12 @@ import java.net.Socket;
 /**
  * Gestionnaire de message ftp
  * 
- * @author elliot
+ * @author elliot et salsabile
  *
  */
 public class MessageManager {
+
+	private static final String ERROR_ARGUMENT = "Erreur dans les arguments de ftpRequest";
 
 	private static final String END_LINE = "\r\n";
 	private static final String ERROR_MESSAGE = "Erreur dans l'envoie du message au client";
@@ -32,17 +34,30 @@ public class MessageManager {
 	 * Objet permettant l'écriture sur la connection
 	 */
 	private DataOutputStream writer;
-	
+
 	/**
 	 * Connection avec un client
 	 */
 	private Socket socket;
 
+	/**
+	 * Initialise les objets permettant la gestion de message dans une socket
+	 * 
+	 * @param socket
+	 */
 	public MessageManager(final Socket socket) {
 
-		
+		if (socket == null) {
+			throw new NullPointerException(ERROR_ARGUMENT);
+		}
+
 		reader = getNewReader(socket);
 		writer = getNewWriter(socket);
+		
+		if(reader == null || writer == null) {
+			throw new NullPointerException(ERROR_ARGUMENT);
+		}
+		
 		this.socket = socket;
 	}
 
@@ -83,8 +98,13 @@ public class MessageManager {
 	 * @return Objet permettant l'envoie de message
 	 */
 	private DataOutputStream getNewWriter(final Socket socket) {
-
+		
 		OutputStream os = null;
+		
+		if(socket == null) {
+			return null;
+		}
+		
 		try {
 			os = socket.getOutputStream();
 		} catch (final IOException e) {
@@ -108,6 +128,14 @@ public class MessageManager {
 	 */
 	public boolean sendMessage(final String message) {
 
+		if(message == null) {
+			return false;
+		}
+		
+		if(message.compareTo("") == 0) {
+			return false;
+		}
+		
 		try {
 			writer.writeBytes(message + END_LINE);
 		} catch (final IOException e) {
@@ -128,8 +156,12 @@ public class MessageManager {
 	 */
 	public boolean sendMessageByte(final byte[] message) {
 
+		if(message == null) {
+			return false;
+		}
+		
 		try {
-			writer.writeBytes(message + END_LINE);
+			writer.write(message);
 		} catch (final IOException e) {
 			System.err.println(ERROR_MESSAGE);
 			e.printStackTrace();
@@ -138,7 +170,6 @@ public class MessageManager {
 		return true;
 	}
 
-	
 	/**
 	 * Réceptionne un message venant d'un client
 	 * 
@@ -158,8 +189,15 @@ public class MessageManager {
 		}
 		return commande;
 	}
-	
+
+	/**
+	 * Ferme la connection
+	 */
 	public void closeConnection() {
+
+		if(socket == null) {
+			return;
+		}
 		
 		try {
 			socket.close();

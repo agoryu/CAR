@@ -1,24 +1,17 @@
 package ftp;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import file.FileMagnagement;
-
 /**
- * @author agoryu
+ * @author elliot et salsabile
  *
  */
 public class FtpRequest implements Runnable {
 	
+	private static final String ERROR_NOT_CONNECTED = "530 Not logged in.";
 	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site.";
 
 	/* message pour le developpeur */
@@ -88,7 +81,7 @@ public class FtpRequest implements Runnable {
 	}
 
 	/**
-	 * Attend des commandes de la part du client courant
+	 * Méthode qui attend des messages du client
 	 */
 	public void processRequest() {
 
@@ -138,19 +131,15 @@ public class FtpRequest implements Runnable {
 			messageMan.sendMessage(ERROR_NO_COMMAND);
 			return;
 		}
+		
+		System.out.println(instruction + " " + parametre);
 
-		String instructionFormat = instruction.trim();
-		// instructionFormat = instructionFormat.toLowerCase();
-		instructionFormat = instructionFormat.replaceAll("[\r\n]+", "");
+		String instructionFormat = instruction.replaceAll("[\r\n]+", "");
 
 		String parametreFormat = parametre.trim();// enleve les espaces
 		parametreFormat = parametreFormat.toLowerCase();// met en minuscule
-		parametreFormat = parametreFormat.replaceAll("[\r\n]+", "");// enléve
-																	// les
-																	// retours
-																	// chariots
-
-		System.out.println(instruction + " " + parametre);
+		//enléve les retours chariots
+		parametreFormat = parametreFormat.replaceAll("[\r\n]+", "");
 
 		switch (instructionFormat) {
 		case USER:
@@ -164,25 +153,37 @@ public class FtpRequest implements Runnable {
 		case RETR:
 			if(isConnected)
 				runCommand.processRETR(parametreFormat);
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 			break;
 		case STOR:
 			if(isConnected)
 				runCommand.processSTOR(parametreFormat);
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 			break;
 		case LIST:
 			if(isConnected)
 				runCommand.processLIST(parametreFormat);
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 			break;
 		case QUIT:
 			runCommand.processQUIT();
+			isFinish = true;
+			isConnected = false;
 			break;
 		case PORT:
 			if(isConnected)
 				runCommand.processPORT(parametreFormat);
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 			break;
 		case PWD:
 			if(isConnected)
-				runCommand.processPWD(parametreFormat);
+				runCommand.processPWD();
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 			break;
 		default:
 			messageMan.sendMessage(ERROR_NO_COMMAND);

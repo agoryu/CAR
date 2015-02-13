@@ -1,25 +1,45 @@
 package ftp;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import file.FileMagnagement;
 
+/**
+ * Classe qui permet de traiter les commandes FTP
+ * 
+ * @author elliot et salsabile
+ *
+ */
 public class FtpCommand {
+
+	private static final String ERROR_CONNECTION = "425 Can't open data connection.";
+	private static final String FORGOT_PORT = " : you forgot the command PORT or PASV";
+	private static final String NOT_A_NUMBER = " : parameter is not a number";
+	private static final String BAD_FORMAT = " : bad format -> num,num,num,num,num,num";
+	private static final String NO_PARAMETER = " : no parameter";
+	private static final String END_CONNECTION_DATA = "226 Requested file action successful";
+	private static final String BEGIN_CONNECTION_DATA = "150 open data connection";
+	private static final String ERROR_ARGUMENT = "Erreur dans les arguments de ftpRequest";
 
 	private static final String ANONYMOUS = "anonymous";
 	private static final String GOODBYE = "221 Goodbye."; // TODO
 	private static final String LOGIN_OK = "230 Login successful.";
 	private static final String WELCOME = "220 Service ready for new user.";
-	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments.";
+	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments";
 	private static final String SPECIFY_MDP = "331 Please specify the password.";
 	private static final String ERROR_IDENTIFICATION = "430 Invalid username or password.";
-	private static final String ERROR_SEND_FILE = "Erreur lors de la lecture du fichier"; // TODO
-																							// voir
-																							// le
-																							// message
+	private static final String PORT_SUCCESSFUL = "200 PORT command successful.";
+	
+	private static final String ERROR_SOCKET_NULL = "Erreur socket null";
+
+	// TODO
+	//private static final String ERROR_SEND_FILE = "Erreur lors de la lecture du fichier";
 
 	/**
 	 * Gestionnaire de message
@@ -34,7 +54,7 @@ public class FtpCommand {
 	/**
 	 * Port spécifié par l'utilisateur pour le telechargement d'un fichier
 	 */
-	private String portDownload;
+	private Integer portDownload;
 
 	/**
 	 * Adresse spécifié par l'utilisateur pour le telechargement d'un fichier
@@ -46,8 +66,28 @@ public class FtpCommand {
 	 */
 	private String direcory;
 
+	/**
+	 * Initialise la classe avec l'ensemble des parametre de connection
+	 * 
+	 * @param directory
+	 *            Dossier visible par le client
+	 * @param bdd
+	 *            BDD contenant les comptes client
+	 * @param socket
+	 *            Connection avec le client
+	 * @param messageManager
+	 *            Objet permettant l'envoie et la reception de message du client
+	 */
 	public FtpCommand(final String directory, final Map<String, String> bdd,
 			final Socket socket, final MessageManager messageManager) {
+
+		if (socket == null || directory == null || bdd == null) {
+			throw new NullPointerException(ERROR_ARGUMENT);
+		}
+
+		if (bdd.isEmpty()) {
+			throw new NullPointerException(ERROR_ARGUMENT);
+		}
 
 		this.direcory = directory;
 		this.bdd = bdd;
@@ -55,14 +95,24 @@ public class FtpCommand {
 		this.messageMan = messageManager;
 	}
 
+	/**
+	 * Message envoyé lors de la connection avec un client
+	 */
 	public void connection() {
 		messageMan.sendMessage(WELCOME);
 	}
 
+	/**
+	 * Permet de récupérer le login de l'utilisateur
+	 * 
+	 * @param login
+	 *            Login donné par l'utilisateur
+	 * @return Le login si il est valide, null sinon
+	 */
 	public String processUSER(final String login) {
 
 		if (!checkCommand(login)) {
-			messageMan.sendMessage(ERROR_PARAMETER);
+			messageMan.sendMessage(ERROR_PARAMETER+"");
 			return null;
 		}
 
@@ -76,6 +126,15 @@ public class FtpCommand {
 
 	}
 
+	/**
+	 * Vérifie l'identité de l'utilisateur avec son mot de passe
+	 * 
+	 * @param mdp
+	 *            Mot de passe fournit par l'utilisateur
+	 * @param login
+	 *            Login de l'utilisateur
+	 * @return True si le client est connecté, false sinon
+	 */
 	public boolean processPASS(final String mdp, final String login) {
 
 		if (mdp == null) {
@@ -102,84 +161,178 @@ public class FtpCommand {
 
 	}
 
+	/**
+	 * Récupère les informations de connection pour l'envoie de fichier
+	 * 
+	 * @param connectionInfo
+	 *            Information permettant de se connecter avec le client
+	 */
 	public void processPORT(final String connectionInfo) {
 
 		if (!checkCommand(connectionInfo)) {
-			messageMan.sendMessage(ERROR_PARAMETER);
+			messageMan.sendMessage(ERROR_PARAMETER + NO_PARAMETER);
+			return;
+		}
+		
+		final Pattern patt = Pattern.compile("\\d{1,3}(,\\d{1,3}){5}");
+		final Matcher mat = patt.matcher(connectionInfo);
+		
+		if(!mat.matches()) {
+			messageMan.sendMessage(ERROR_PARAMETER + BAD_FORMAT);
 			return;
 		}
 
 		final StringTokenizer parseParameter = new StringTokenizer(
-				connectionInfo, " ");
+				connectionInfo, ",");
+		
+		String ip = "";
+		Integer port = 0;
+		
+		for(int i=0; i<4; i++) {
+			ip += parseParameter.nextToken() + ".";
+		}
+		
+		ip = ip.substring(0, ip.length() - 1);
+		
+		try {
+			final Integer multiplicateur = Integer.parseInt(parseParameter.nextToken());
+			port = 256 * multiplicateur;
+			final Integer additionneur = Integer.parseInt(parseParameter.nextToken());
+			port += additionneur;
+		} catch(final NumberFormatException e) {
+			messageMan.sendMessage(ERROR_PARAMETER + NOT_A_NUMBER);
+			return;
+		}
 
-		final String port = parseParameter.nextToken();
-		final String ip = parseParameter.nextToken();
-
-		if (!checkCommand(port) || !checkCommand(ip)) {
+		if (!checkCommand(ip) || port == 0) {
 			messageMan.sendMessage(ERROR_PARAMETER);
 			return;
 		}
 
 		portDownload = port;
 		ipDownload = ip;
-
+		
+		messageMan.sendMessage(PORT_SUCCESSFUL);
 	}
 
+	/**
+	 * Envoie les données contenu dans un fichier du serveur au client
+	 * 
+	 * @param filename
+	 *            Nom de fichier à envoyer
+	 */
 	public void processRETR(final String filename) {
 
 		if (!checkCommand(filename)) {
-			messageMan.sendMessage(ERROR_PARAMETER);
+			messageMan.sendMessage(ERROR_PARAMETER + NO_PARAMETER);
 			return;
 		}
 
 		/* voir le message a mettre */
-		if (!checkCommand(portDownload) || !checkCommand(ipDownload)) {
-			messageMan.sendMessage(ERROR_PARAMETER);
+		if (!checkCommand(ipDownload) || portDownload== 0) {
+			messageMan.sendMessage(ERROR_PARAMETER + FORGOT_PORT);
 			return;
 		}
 
-		/* récupere le fichier dont le nom est dans parametre */
-		// pas oublier la verif
 		final FileMagnagement management = new FileMagnagement();
-		final byte[] data = management.lire(filename);
-
-		Integer iport = null;
-
-		try {
-			iport = Integer.parseInt(portDownload);
-		} catch (final NumberFormatException e) {
-			messageMan.sendMessage(ERROR_PARAMETER);
-		}
+		final byte[] data = management.lire(direcory + filename);
 
 		Socket socket = null;
-
+		
 		try {
-			socket = new Socket(ipDownload, iport);
+			socket = new Socket(ipDownload, portDownload);
 		} catch (final IOException e) {
 			// TODO
-			System.err.println("530");
+			messageMan.sendMessage(ERROR_CONNECTION);
+			return;
 		}
+		
+		messageMan.sendMessage(BEGIN_CONNECTION_DATA);
 
 		final MessageManager mm = new MessageManager(socket);
 		mm.sendMessageByte(data);
 		if (socket != null) {
 			mm.closeConnection();
 		}
+		
+		messageMan.sendMessage(END_CONNECTION_DATA);
+		
+		ipDownload = "";
+		portDownload = 0;
+		
 	}
 
-	// TODO recevoir , lire la socket et écrire le contenue dans le ftp
-	public void processSTOR(final String parametre) {
-		System.out.println("je passe dans stor");
+	/**
+	 * Reçoit les données à sauvegarder dans un fichier sur le serveur
+	 * 
+	 * @param filename Nom de fichier à recevoir 
+	 *            TODO
+	 */
+	public void processSTOR(final String filename) {
+		
+		if (!checkCommand(filename)) {
+			messageMan.sendMessage(ERROR_PARAMETER);
+			return;
+		}
+
+		/* voir le message a mettre */
+		if (!checkCommand(ipDownload) || portDownload== 0) {
+			messageMan.sendMessage(ERROR_PARAMETER);
+			return;
+		}
+		
+		ServerSocket serveurSocket = null;
+		CreateSocket cs = new CreateSocket(portDownload);
+		//Serveur serveur;
+		/* Creation du serveurSocket */
+		if ((serveurSocket = cs.getServerSocket()) == null) {
+			System.err.println(ERROR_SOCKET_NULL);
+			return;
+		}
+		
+		Socket socket = null;
+		
+		if ((socket = cs.getSocket(serveurSocket)) == null) {
+			System.err.println(ERROR_SOCKET_NULL);
+		}
+		
+		/* Recevoir le fichier du répertoire local*/
+		final MessageManager mm = new MessageManager ( socket);
+		String message = mm.receiveMessage();
+		
+		
+		/* Ecrire le ficher dans le répertoire distant*/ 
+		final FileMagnagement management = new FileMagnagement();
+		management.ecrire(message, filename);
+		
+		if(socket != null) {
+			mm.closeConnection();
+		}
+		
+		cs.closeServerSocket(serveurSocket);
 	}
 
+	/**
+	 * Méthode permettant de lister les fichier dans un dossier
+	 * 
+	 * @param parametre
+	 *            Une chaine représentant un dossier ou rien si il faut lister
+	 *            les fichiers du dossier courant
+	 */
 	public void processLIST(final String parametre) {
 		System.out.println("je passe dans list");
 	}
 
-	public void processPWD(final String parametre) {
+	/**
+	 * Affiche le dossier courant
+	 */
+	public void processPWD() {
 		messageMan.sendMessage(direcory);
 	}
 
+	/**
+	 * Envoit un message et ferme la connection
+	 */
 	public void processQUIT() {
 
 		messageMan.sendMessage(GOODBYE);
