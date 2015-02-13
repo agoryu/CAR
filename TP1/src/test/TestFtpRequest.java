@@ -24,8 +24,14 @@ public class TestFtpRequest {
 	private static final String BEGIN_TRANSFERT = "150 Opening ASCII mode data connection for file list.";
 	private static final String END_TRANSFERT = "226 Transfer complete.";
 	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site.";
-	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments.";
+	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments";
 	private static final String ERROR_IDENTIFICATION = "430 Invalid username or password.";
+	private static final String BEGIN_CONNECTION_DATA = "150 open data connection";
+	private static final String END_CONNECTION_DATA = "226 Requested file action successful";
+	private static final String PASV_MESSAGE = "227 127,0,0,1,4,2";
+	
+	private static final String BAD_FORMAT = " : bad format -> num,num,num,num,num,num";
+	private static final String NO_PARAMETER = " : no parameter";
 
 	@Test
 	public void TestConnection() throws UnknownHostException, IOException {
@@ -83,7 +89,7 @@ public class TestFtpRequest {
 				GOODBYE);
 	}
 
-	@Test
+	/*@Test
 	public void TestPORT() throws UnknownHostException, IOException {
 		String answer;
 		Socket s = new Socket("localhost", 1024);
@@ -99,7 +105,11 @@ public class TestFtpRequest {
 
 		writer.writeBytes("PORT 127,0,0,1," + END_LINE);
 		answer = reader.readLine();
-		assertEquals("test de la commande port", answer, ERROR_PARAMETER);
+		assertEquals("test de la commande port: mauvais format", answer, ERROR_PARAMETER + BAD_FORMAT);
+		
+		writer.writeBytes("PORT" + END_LINE);
+		answer = reader.readLine();
+		assertEquals("test de la commande port : pas de parametre", answer, ERROR_PARAMETER + NO_PARAMETER);
 
 		writer.writeBytes("PORT 127,0,0,1,4,1" + END_LINE);
 		answer = reader.readLine();
@@ -126,6 +136,8 @@ public class TestFtpRequest {
 		ServerSocket ss = new ServerSocket(1025);
 		Socket s2 = null;
 		writer.writeBytes("RETR test.txt" + END_LINE);
+		answer = reader.readLine();
+		assertEquals("test debut connection retr", answer, BEGIN_CONNECTION_DATA);
 		s2 = ss.accept();
 
 		DataInputStream input = new DataInputStream(s2.getInputStream());
@@ -136,6 +148,9 @@ public class TestFtpRequest {
 		answer = answer.substring(0, answer.length()-1);
 		assertEquals("test de la commande retr", answer, "hello world");
 
+		answer = reader.readLine();
+		assertEquals("test fin connection retr", answer, END_CONNECTION_DATA);
+		
 		if (s2 != null)
 			s2.close();
 		ss.close();
@@ -145,7 +160,7 @@ public class TestFtpRequest {
 	@Test
 	public void TestSTOR() throws UnknownHostException, IOException {
 
-		String answer;
+		/*String answer;
 		Socket s = new Socket("localhost", 1024);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				s.getInputStream()));
@@ -173,91 +188,30 @@ public class TestFtpRequest {
 		if (s2 != null)
 			s2.close();
 
+	}*/
+	
+	@Test
+	public void TestLIST() throws UnknownHostException, IOException {
+		
 	}
+	
+	@Test
+	public void TestPASV() throws UnknownHostException, IOException {
+		/*String answer;
+		Socket s = new Socket("localhost", 1024);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				s.getInputStream()));
+		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
+		answer = reader.readLine();// le welcome
 
-	/*
-	 * @Test public void TestServeurFonctionnel() throws IOException,
-	 * InterruptedException {
-	 * 
-	 * String answer;
-	 * 
-	 * Socket s = new Socket("localhost", 1024); BufferedReader reader = new
-	 * BufferedReader(new InputStreamReader(s.getInputStream()));
-	 * DataOutputStream writer = new DataOutputStream(s.getOutputStream());
-	 * 
-	 * answer = reader.readLine(); assertEquals("connexion au serveur", answer,
-	 * WELCOME); System.out.println(answer);
-	 * 
-	 * ///////////////////// USER /////////////////////////////
-	 * writer.writeBytes("USER toto" + END_LINE); answer = reader.readLine();
-	 * assertEquals("test du user non reconnu", answer, ERROR_IDENTIFICATION);
-	 * writer.writeBytes("USER elliot" + END_LINE); answer = reader.readLine();
-	 * assertEquals("test du user elliot", answer, SPECIFY_MDP);
-	 * 
-	 * ///////////////////// PASS /////////////////////////////
-	 * writer.writeBytes("PASS link" + END_LINE); answer = reader.readLine();
-	 * assertEquals("test du pass elliot", answer, LOGIN_OK);
-	 * 
-	 * ///////////////////// PORT ///////////////////////////// //PORT
-	 * IP1,IP2,IP3,IP4,P1,P2 => P1 = 4 parce que 4 * 256 //et P2 = 1 parce que 4
-	 * * 256 + 1 = 1025 le port de connection
-	 * writer.writeBytes("PORT 127,0,0,1,4,1" + END_LINE); answer =
-	 * reader.readLine(); assertEquals("test de la commande port", answer,
-	 * PORT_SUCCESSFUL);
-	 * 
-	 * ///////////////////////// RETR //////////////////////////////////
-	 * ServerSocket ss = new ServerSocket(1025); Socket s2 = null;
-	 * writer.writeBytes("RETR test.txt" + END_LINE); s2 = ss.accept(); answer =
-	 * new BufferedReader(new
-	 * InputStreamReader(s2.getInputStream())).readLine();
-	 * assertEquals("test de la commande port", answer, "hello world");
-	 * 
-	 * ///////////////////// LIST /////////////////////////////
-	 * /*writer.writeBytes("LIST" + END_LINE); Socket s2 = new
-	 * Socket("127.0.0.1", 1025); BufferedReader reader2 = new
-	 * BufferedReader(new InputStreamReader(s2.getInputStream()));
-	 * DataOutputStream writer2 = new DataOutputStream(s2.getOutputStream());
-	 */
+		writer.writeBytes("USER salsabile" + END_LINE);
+		answer = reader.readLine();
+		writer.writeBytes("PASS ok" + END_LINE);
+		answer = reader.readLine();
 
-	/*
-	 * answer = reader2.readLine();
-	 * assertEquals("test de la réponse de debut de transfert", answer,
-	 * BEGIN_TRANSFERT); //les trois dossiers présents dans la racine answer =
-	 * reader2.readLine(); answer = reader2.readLine(); answer =
-	 * reader2.readLine(); //récupération du message de fin de transfert sur la
-	 * premiere socket answer = reader.readLine();
-	 * assertEquals("test de la réponse de fin d'envoie de donné", answer,
-	 * END_TRANSFERT);
-	 */
-
-	// /////////////////// RETR /////////////////////////////
-	// recuperation d'un fichier
-	/*
-	 * writer.writeBytes("PORT 127,0,0,1,4,1" + END_LINE); reader.readLine();
-	 * 
-	 * writer.writeBytes("RETR tac/test1.txt" + END_LINE); answer =
-	 * reader2.readLine();
-	 * assertEquals("test de la réponse de debut de transfert du fichier",
-	 * answer, BEGIN_TRANSFERT); answer = reader2.readLine();
-	 * assertEquals("test de la réponse de debut de transfert du fichier",
-	 * answer, "hello world"); answer = reader.readLine();
-	 * assertEquals("test de la réponse de fin d'envoie de donné", answer,
-	 * END_TRANSFERT);
-	 */
-
-	// /////////////////// STOR /////////////////////////////
-	/*
-	 * writer.writeBytes("PORT 127,0,0,1,4,1" + END_LINE); reader.readLine();
-	 * 
-	 * writer.writeBytes("STOR toto.txt" + END_LINE);
-	 * writer2.writeBytes("bonjour le monde" + END_LINE);
-	 */
-
-	// ////////////////// QUIT ////////////////////////////////
-	/*
-	 * writer.writeBytes("QUIT" + END_LINE); answer = reader.readLine();
-	 * assertEquals("test de la réponse de fin d'envoie de donné", answer,
-	 * GOODBYE); }
-	 */
+		writer.writeBytes("PASV" + END_LINE);
+		answer = reader.readLine();
+		assertEquals("test de la commande port: mauvais format", answer, PASV_MESSAGE);*/
+	}
 
 }

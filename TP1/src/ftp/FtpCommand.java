@@ -18,6 +18,7 @@ import file.FileMagnagement;
  */
 public class FtpCommand {
 
+	private static final String PASV_MESSAGE = "227 127,0,0,1,4,2";
 	private static final String ERROR_CONNECTION = "425 Can't open data connection.";
 	private static final String FORGOT_PORT = " : you forgot the command PORT or PASV";
 	private static final String NOT_A_NUMBER = " : parameter is not a number";
@@ -67,6 +68,11 @@ public class FtpCommand {
 	private String direcory;
 
 	/**
+	 * Login de l'utilisateur
+	 */
+	private String login;
+	
+	/**
 	 * Initialise la classe avec l'ensemble des parametre de connection
 	 * 
 	 * @param directory
@@ -109,7 +115,7 @@ public class FtpCommand {
 	 *            Login donné par l'utilisateur
 	 * @return Le login si il est valide, null sinon
 	 */
-	public String processUSER(final String login) {
+	public synchronized String processUSER(final String login) {
 
 		if (!checkCommand(login)) {
 			messageMan.sendMessage(ERROR_PARAMETER+"");
@@ -135,7 +141,7 @@ public class FtpCommand {
 	 *            Login de l'utilisateur
 	 * @return True si le client est connecté, false sinon
 	 */
-	public boolean processPASS(final String mdp, final String login) {
+	public synchronized boolean processPASS(final String mdp) {
 
 		if (mdp == null) {
 			messageMan.sendMessage(ERROR_PARAMETER);
@@ -167,7 +173,7 @@ public class FtpCommand {
 	 * @param connectionInfo
 	 *            Information permettant de se connecter avec le client
 	 */
-	public void processPORT(final String connectionInfo) {
+	public synchronized void processPORT(final String connectionInfo) {
 
 		if (!checkCommand(connectionInfo)) {
 			messageMan.sendMessage(ERROR_PARAMETER + NO_PARAMETER);
@@ -221,7 +227,7 @@ public class FtpCommand {
 	 * @param filename
 	 *            Nom de fichier à envoyer
 	 */
-	public void processRETR(final String filename) {
+	public synchronized void processRETR(final String filename) {
 
 		if (!checkCommand(filename)) {
 			messageMan.sendMessage(ERROR_PARAMETER + NO_PARAMETER);
@@ -268,10 +274,10 @@ public class FtpCommand {
 	 * @param filename Nom de fichier à recevoir 
 	 *            TODO
 	 */
-	public void processSTOR(final String filename) {
+	public synchronized void processSTOR(final String filename) {
 		
 		if (!checkCommand(filename)) {
-			messageMan.sendMessage(ERROR_PARAMETER);
+			messageMan.sendMessage(ERROR_PARAMETER + NO_PARAMETER);
 			return;
 		}
 
@@ -282,10 +288,12 @@ public class FtpCommand {
 		}
 		
 		ServerSocket serveurSocket = null;
-		CreateSocket cs = new CreateSocket(portDownload);
+		final CreateSocket cs = new CreateSocket(portDownload);
+		
 		//Serveur serveur;
 		/* Creation du serveurSocket */
 		if ((serveurSocket = cs.getServerSocket()) == null) {
+			//TODO un message doit etre envoyé à l'utilisateur
 			System.err.println(ERROR_SOCKET_NULL);
 			return;
 		}
@@ -293,11 +301,14 @@ public class FtpCommand {
 		Socket socket = null;
 		
 		if ((socket = cs.getSocket(serveurSocket)) == null) {
+			//TODO un message doit etre envoyé à l'utilisateur
 			System.err.println(ERROR_SOCKET_NULL);
 		}
 		
+		messageMan.sendMessage(BEGIN_CONNECTION_DATA);
+		
 		/* Recevoir le fichier du répertoire local*/
-		final MessageManager mm = new MessageManager ( socket);
+		final MessageManager mm = new MessageManager (socket);
 		String message = mm.receiveMessage();
 		
 		
@@ -309,7 +320,12 @@ public class FtpCommand {
 			mm.closeConnection();
 		}
 		
+		messageMan.sendMessage(END_CONNECTION_DATA);
+		
 		cs.closeServerSocket(serveurSocket);
+		
+		ipDownload = "";
+		portDownload = 0;
 	}
 
 	/**
@@ -333,11 +349,18 @@ public class FtpCommand {
 	/**
 	 * Envoit un message et ferme la connection
 	 */
-	public void processQUIT() {
+	public synchronized void processQUIT() {
 
 		messageMan.sendMessage(GOODBYE);
 		messageMan.closeConnection();
 
+	}
+	
+	public synchronized void processPASV() {
+		
+		messageMan.sendMessage(PASV_MESSAGE);
+		ipDownload = "127.0.0.1";
+		portDownload = 1026;
 	}
 
 	/**

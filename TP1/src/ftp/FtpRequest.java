@@ -25,6 +25,7 @@ public class FtpRequest implements Runnable {
 	private static final String LIST = "LIST";
 	private static final String QUIT = "QUIT";
 	private static final String PORT = "PORT";
+	private static final String PASV = "PASV";
 	private static final String PWD = "PWD";
 
 	/**
@@ -36,11 +37,6 @@ public class FtpRequest implements Runnable {
 	 * Vérifie si l'utilisateur est connecté
 	 */
 	private boolean isConnected;
-
-	/**
-	 * Login de l'utilisateur
-	 */
-	private String login;
 	
 	/**
 	 * Executeur de commande
@@ -68,9 +64,6 @@ public class FtpRequest implements Runnable {
 
 		messageMan = new MessageManager(socket);
 		runCommand = new FtpCommand(directory, bdd, socket, messageMan);
-
-		login = "";
-
 	}
 
 	@Override
@@ -141,53 +134,48 @@ public class FtpRequest implements Runnable {
 		//enléve les retours chariots
 		parametreFormat = parametreFormat.replaceAll("[\r\n]+", "");
 
-		switch (instructionFormat) {
-		case USER:
+		if(instruction.compareTo(USER) == 0) {
 			if(!isConnected)
-				login = runCommand.processUSER(parametreFormat);
-			break;
-		case PASS:
+				runCommand.processUSER(parametreFormat);
+		} else if(instruction.compareTo(PASS) == 0) {
 			if(!isConnected)
-				isConnected = runCommand.processPASS(parametreFormat, login);
-			break;
-		case RETR:
+				isConnected = runCommand.processPASS(parametreFormat);
+		} else if(instruction.compareTo(RETR) == 0) {
 			if(isConnected)
 				runCommand.processRETR(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-			break;
-		case STOR:
+		} else if(instruction.compareTo(STOR) == 0) {
 			if(isConnected)
 				runCommand.processSTOR(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-			break;
-		case LIST:
+		} else if(instruction.compareTo(LIST) == 0) {
 			if(isConnected)
 				runCommand.processLIST(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-			break;
-		case QUIT:
+		} else if(instruction.compareTo(QUIT) == 0) {
 			runCommand.processQUIT();
 			isFinish = true;
 			isConnected = false;
-			break;
-		case PORT:
+		} else if(instruction.compareTo(PORT) == 0) {
 			if(isConnected)
 				runCommand.processPORT(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-			break;
-		case PWD:
+		} else if(instruction.compareTo(PASV) == 0) {
+			if(isConnected)
+				runCommand.processPASV();
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
+		} else if(instruction.compareTo(PWD) == 0) {
 			if(isConnected)
 				runCommand.processPWD();
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-			break;
-		default:
+		} else {
 			messageMan.sendMessage(ERROR_NO_COMMAND);
-			break;
 		}
 	}
 
