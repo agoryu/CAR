@@ -115,20 +115,21 @@ public class FtpCommand {
 	 *            Login donné par l'utilisateur
 	 * @return Le login si il est valide, null sinon
 	 */
-	public synchronized String processUSER(final String login) {
+	public synchronized void processUSER(final String login) {
 
 		if (!checkCommand(login)) {
 			messageMan.sendMessage(ERROR_PARAMETER+"");
-			return null;
+			return;
 		}
 
 		if (bdd.containsKey(login)) {
 			messageMan.sendMessage(SPECIFY_MDP);
-			return login;
+			this.login = login;
 		} else {
 			messageMan.sendMessage(ERROR_IDENTIFICATION);
-			return null;
+			return;
 		}
+		 
 
 	}
 
@@ -148,8 +149,9 @@ public class FtpCommand {
 			return false;
 		}
 
-		if (!checkCommand(login)) {
+		if (!checkCommand(this.login)) {
 			messageMan.sendMessage(ERROR_IDENTIFICATION);
+			return false;
 		}
 
 		if (login.compareTo(ANONYMOUS) == 0) {

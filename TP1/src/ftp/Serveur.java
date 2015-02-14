@@ -55,7 +55,7 @@ public class Serveur {
 		bdd = new HashMap<>();
 		bdd.put("anonymous", "");
 		bdd.put("elliot", "link");
-		bdd.put("salsabil", "ok");
+		bdd.put("salsabile", "ok");
 
 		while (true) {
 

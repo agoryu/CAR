@@ -89,7 +89,7 @@ public class TestFtpRequest {
 				GOODBYE);
 	}
 
-	/*@Test
+	@Test
 	public void TestPORT() throws UnknownHostException, IOException {
 		String answer;
 		Socket s = new Socket("localhost", 1024);
@@ -186,9 +186,9 @@ public class TestFtpRequest {
 		assertEquals("test de la commande retr", answer, "bonjour le client");
 
 		if (s2 != null)
-			s2.close();
+			s2.close();*/
 
-	}*/
+	}
 	
 	@Test
 	public void TestLIST() throws UnknownHostException, IOException {
@@ -197,7 +197,7 @@ public class TestFtpRequest {
 	
 	@Test
 	public void TestPASV() throws UnknownHostException, IOException {
-		/*String answer;
+		String answer;
 		Socket s = new Socket("localhost", 1024);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				s.getInputStream()));
@@ -211,7 +211,7 @@ public class TestFtpRequest {
 
 		writer.writeBytes("PASV" + END_LINE);
 		answer = reader.readLine();
-		assertEquals("test de la commande port: mauvais format", answer, PASV_MESSAGE);*/
+		assertEquals("test de la commande port: mauvais format", answer, PASV_MESSAGE);
 	}
 
 }

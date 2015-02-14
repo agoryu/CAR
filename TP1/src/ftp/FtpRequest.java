@@ -124,8 +124,6 @@ public class FtpRequest implements Runnable {
 			messageMan.sendMessage(ERROR_NO_COMMAND);
 			return;
 		}
-		
-		System.out.println(instruction + " " + parametre);
 
 		String instructionFormat = instruction.replaceAll("[\r\n]+", "");
 
@@ -133,6 +131,8 @@ public class FtpRequest implements Runnable {
 		parametreFormat = parametreFormat.toLowerCase();// met en minuscule
 		//enléve les retours chariots
 		parametreFormat = parametreFormat.replaceAll("[\r\n]+", "");
+		
+		System.out.println(instructionFormat + " " + parametreFormat);
 
 		if(instruction.compareTo(USER) == 0) {
 			if(!isConnected)
