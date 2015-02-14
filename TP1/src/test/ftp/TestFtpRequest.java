@@ -1,4 +1,4 @@
-package test;
+package test.ftp;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import file.FileMagnagement;
+import file.FileManagement;
 
 public class TestFtpRequest {
 

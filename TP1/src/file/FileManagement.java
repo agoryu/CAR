@@ -6,7 +6,7 @@ import java.io.*;
  * @author agoryu
  *
  */
-public class FileMagnagement {
+public class FileManagement {
 
 	private static final String ERROR_PARAMETER_READ = "Erreur l'argument est vide dans la méthode de lecture de fichier";
 	private static final String ERROR_PARAMETER_WRITE = "Erreur l'un des paramètres de la méthode writeFile est vide";
@@ -19,40 +19,46 @@ public class FileMagnagement {
 	 * @param fichier
 	 *            Nom fichier
 	 */
-	public void ecrire(Object o, String fichier) {
+	public boolean writeFile(byte[] o, String fichier) {
 		
 		FileOutputStream fos;
 		ObjectOutputStream out = null;
+		boolean result = false;
 		
 		if(o == null || fichier == null) {
 			System.err.println(ERROR_PARAMETER_WRITE);
-			return;
+			return false;
 		}
 		
 		if(fichier.compareTo("") == 0) {
 			System.err.println(ERROR_PARAMETER_WRITE);
-			return;
+			return false;
 		}
 
 		try {
 			fos = new FileOutputStream(fichier);
 			out = new ObjectOutputStream(fos);
-			out.writeObject(o);
-		} catch (FileNotFoundException e) {
+			out.write(o);
+			result = true;
+		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+			result = false;
+		} catch (final IOException e) {
 			e.printStackTrace();
+			result = false;
 		}
 
 		finally {
 			if (out != null) {
 				try {
 					out.close();
-				} catch (IOException e) {
+				} catch (final IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+		
+		return result;
 
 	}
 
@@ -63,7 +69,7 @@ public class FileMagnagement {
 	 *            nom du fichier
 	 * @return
 	 */
-	public byte[] lire(String f) {
+	public byte[] readFile(String f) {
 		
 		FileInputStream fin;
 		DataInputStream input = null;
@@ -99,43 +105,5 @@ public class FileMagnagement {
 		return data;
 
 	}
-
-	/*
-	 * public static void telechargerFichierOnFTP(final String file) {
-	 * //FTPClient client = new FTPClient(); FileOutputStream fos = null;
-	 * 
-	 * final Socket s = new Socket("anonymous", "mdp"); try {
-	 * client.connect("anonymous"); client.login("anonymous", "ok");
-	 * 
-	 * String filename = file; // FICHIER QUI DOIT ETRE TELECHARGER SUR LE FTP
-	 * fos = new FileOutputStream(filename); //TODO FileMagnagement man; Byte
-	 * contenu = man.lire(); client.setFileType(client.BINARY_FILE_TYPE); //
-	 * INITIALISATION DE LA CONNECTION EN MODE BINAIRE client.retrieveFile("/" +
-	 * filename, fos); // TELECHARGEMENT DU FICHIER fos.flush();
-	 * 
-	 * } catch (IOException e) { e.printStackTrace(); } finally { try { if (fos
-	 * != null) { fos.close(); client.disconnect(); } } catch (IOException e) {
-	 * e.printStackTrace(); } }
-	 * 
-	 * }
-	 * 
-	 * public static void uploadFichierOnFTP() { FTPClient client = new
-	 * FTPClient(); FileInputStream fis = null;
-	 * 
-	 * try { client.connect("ftp.gl-sound.com");
-	 * client.login("admin@gl-sound.com", "helha");
-	 * 
-	 * String filename = "Bd.dat"; fis = new FileInputStream(filename);
-	 * client.setFileType(client.BINARY_FILE_TYPE); client.storeFile(filename,
-	 * fis);
-	 * 
-	 * } catch (IOException e) { e.printStackTrace(); } finally { try { if (fis
-	 * != null) { fis.close(); client.logout(); } client.disconnect(); } catch
-	 * (IOException e) { e.printStackTrace(); } }
-	 * 
-	 * 
-	 * 
-	 * }
-	 */
 
 }

@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import file.FileMagnagement;
+import file.FileManagement;
 
 /**
  * Classe qui permet de traiter les commandes FTP
@@ -242,8 +242,8 @@ public class FtpCommand {
 			return;
 		}
 
-		final FileMagnagement management = new FileMagnagement();
-		final byte[] data = management.lire(directory + filename);
+		final FileManagement management = new FileManagement();
+		final byte[] data = management.readFile(directory + filename);
 
 		Socket socket = null;
 		
@@ -314,8 +314,8 @@ public class FtpCommand {
 		System.out.println("test");
 		
 		/* Ecrire le ficher dans le répertoire distant*/ 
-		final FileMagnagement management = new FileMagnagement();
-		management.ecrire(data, directory+filename);
+		final FileManagement management = new FileManagement();
+		management.writeFile(data, directory+filename);
 		
 		if(socket != null) {
 			mm.closeConnection();
