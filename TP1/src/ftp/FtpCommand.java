@@ -18,6 +18,7 @@ import file.FileManagement;
  */
 public class FtpCommand {
 
+	private static final String ERROR_PERMISSION = "550 Permission denied.";
 	private static final String PWD = "257 ";
 	private static final String PASV_MESSAGE = "227 127,0,0,1,4,2";
 	private static final String ERROR_CONNECTION = "425 Can't open data connection.";
@@ -71,6 +72,11 @@ public class FtpCommand {
 	private String login;
 	
 	/**
+	 * Variable permettant de savoir si le client peut mettre des fichiers sur le serveur
+	 */
+	private boolean havePrivilege;
+	
+	/**
 	 * Initialise la classe avec l'ensemble des parametre de connection
 	 * 
 	 * @param directory
@@ -97,6 +103,7 @@ public class FtpCommand {
 		this.bdd = bdd;
 
 		this.messageMan = messageManager;
+		this.havePrivilege = false;
 	}
 
 	/**
@@ -159,6 +166,7 @@ public class FtpCommand {
 
 		if (bdd.get(login).compareTo(mdp) == 0) {
 			messageMan.sendMessage(LOGIN_OK);
+			this.havePrivilege = true;
 			return true;
 		} else {
 			messageMan.sendMessage(ERROR_IDENTIFICATION);
@@ -275,6 +283,11 @@ public class FtpCommand {
 	 *            TODO
 	 */
 	public synchronized void processSTOR(final String filename) {
+		
+		if(!havePrivilege) {
+			messageMan.sendMessage(ERROR_PERMISSION);
+			return;
+		}
 		
 		if (!checkCommand(filename)) {
 			messageMan.sendMessage(ERROR_PARAMETER + NO_PARAMETER);
