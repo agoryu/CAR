@@ -127,10 +127,8 @@ public class FtpRequest implements Runnable {
 
 		String instructionFormat = instruction.replaceAll("[\r\n]+", "");
 
-		String parametreFormat = parametre.trim();// enleve les espaces
-		parametreFormat = parametreFormat.toLowerCase();// met en minuscule
 		//enléve les retours chariots
-		parametreFormat = parametreFormat.replaceAll("[\r\n]+", "");
+		String parametreFormat = parametre.replaceAll("[\r\n]+", "");
 		
 		System.out.println(instructionFormat + " " + parametreFormat);
 

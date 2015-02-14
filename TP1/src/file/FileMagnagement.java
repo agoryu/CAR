@@ -76,8 +76,9 @@ public class FileMagnagement {
 		try {
 			fin = new FileInputStream(f);
 			input = new DataInputStream(fin);
-			data = new byte[input.available()];
-			final int size = input.read(data);
+			final int size = input.available();
+			data = new byte[size];
+			input.read(data);
 		} catch (FileNotFoundException e) {
 			// TODO
 			System.out.println("Aucun fichier BD");

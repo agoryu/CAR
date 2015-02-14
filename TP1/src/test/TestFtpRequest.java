@@ -10,8 +10,11 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import org.junit.Test;
+
+import file.FileMagnagement;
 
 public class TestFtpRequest {
 
@@ -126,9 +129,9 @@ public class TestFtpRequest {
 		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
 		answer = reader.readLine();// le welcome
 
-		writer.writeBytes("USER elliot" + END_LINE);
+		writer.writeBytes("USER salsabile" + END_LINE);
 		answer = reader.readLine();
-		writer.writeBytes("PASS link" + END_LINE);
+		writer.writeBytes("PASS ok" + END_LINE);
 		answer = reader.readLine();
 		writer.writeBytes("PORT 127,0,0,1,4,1" + END_LINE);
 		answer = reader.readLine();
@@ -160,33 +163,39 @@ public class TestFtpRequest {
 	@Test
 	public void TestSTOR() throws UnknownHostException, IOException {
 
-		/*String answer;
+		String answer;
 		Socket s = new Socket("localhost", 1024);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				s.getInputStream()));
 		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
 		answer = reader.readLine();// le welcome
 
-		writer.writeBytes("USER elliot" + END_LINE);
+		writer.writeBytes("USER salsabile" + END_LINE);
 		answer = reader.readLine();
-		writer.writeBytes("PASS link" + END_LINE);
+		writer.writeBytes("PASS ok" + END_LINE);
 		answer = reader.readLine();
-		writer.writeBytes("PORT 127,0,0,1,4,1" + END_LINE);
+		writer.writeBytes("PORT 127,0,0,1,4,2" + END_LINE);
 		answer = reader.readLine();
 
-		Socket s2 = new Socket("127.0.0.1", 1025);
 		writer.writeBytes("STOR Readme.txt" + END_LINE);
-
-		DataInputStream input = new DataInputStream(s2.getInputStream());
-		byte[] data = new byte[input.available()];
-		input.read(data);
 		
-		answer = new String(data);
-		answer = answer.substring(0, answer.length()-1);
-		assertEquals("test de la commande retr", answer, "bonjour le client");
-
-		if (s2 != null)
-			s2.close();*/
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		Socket s2 = new Socket("127.0.0.1", 1026); 
+		DataOutputStream output = new DataOutputStream(s2.getOutputStream());
+		
+		answer = reader.readLine();
+		assertEquals("test debut connection stor", answer, BEGIN_CONNECTION_DATA);
+		
+		String message = "salut serveur"+END_LINE;
+		output.write(message.getBytes());
+		
+		answer = reader.readLine();
+		assertEquals("test fin connection stor", answer, END_CONNECTION_DATA);
 
 	}
 	

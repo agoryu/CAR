@@ -189,6 +189,27 @@ public class MessageManager {
 		}
 		return commande;
 	}
+	
+	/**
+	 * Réceptionne un message venant d'un client
+	 * 
+	 * @param ibr
+	 *            Objet permettant la lecture sur la connection
+	 * @return La commande ou null en cas de problème
+	 */
+	public byte[] receiveMessageByte() {
+
+		String commande = null;
+
+		try {
+			commande = reader.readLine();
+		} catch (final IOException e1) {
+			System.err.println(ERROR_READ);
+			return null;
+		}
+		return commande.getBytes();
+	}
+
 
 	/**
 	 * Ferme la connection

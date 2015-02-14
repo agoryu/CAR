@@ -65,7 +65,7 @@ public class FtpCommand {
 	/**
 	 * Repertoire à la disposition du client
 	 */
-	private String direcory;
+	private String directory;
 
 	/**
 	 * Login de l'utilisateur
@@ -95,7 +95,7 @@ public class FtpCommand {
 			throw new NullPointerException(ERROR_ARGUMENT);
 		}
 
-		this.direcory = directory;
+		this.directory = directory;
 		this.bdd = bdd;
 
 		this.messageMan = messageManager;
@@ -243,7 +243,7 @@ public class FtpCommand {
 		}
 
 		final FileMagnagement management = new FileMagnagement();
-		final byte[] data = management.lire(direcory + filename);
+		final byte[] data = management.lire(directory + filename);
 
 		Socket socket = null;
 		
@@ -290,11 +290,10 @@ public class FtpCommand {
 		}
 		
 		ServerSocket serveurSocket = null;
-		final CreateSocket cs = new CreateSocket(portDownload);
+		final CreateSocket cs = new CreateSocket();
 		
-		//Serveur serveur;
 		/* Creation du serveurSocket */
-		if ((serveurSocket = cs.getServerSocket()) == null) {
+		if ((serveurSocket = cs.getServerSocket(portDownload)) == null) {
 			//TODO un message doit etre envoyé à l'utilisateur
 			System.err.println(ERROR_SOCKET_NULL);
 			return;
@@ -306,17 +305,17 @@ public class FtpCommand {
 			//TODO un message doit etre envoyé à l'utilisateur
 			System.err.println(ERROR_SOCKET_NULL);
 		}
-		
+
 		messageMan.sendMessage(BEGIN_CONNECTION_DATA);
 		
 		/* Recevoir le fichier du répertoire local*/
 		final MessageManager mm = new MessageManager (socket);
-		String message = mm.receiveMessage();
-		
+		byte[] data = mm.receiveMessageByte();
+		System.out.println("test");
 		
 		/* Ecrire le ficher dans le répertoire distant*/ 
 		final FileMagnagement management = new FileMagnagement();
-		management.ecrire(message, filename);
+		management.ecrire(data, directory+filename);
 		
 		if(socket != null) {
 			mm.closeConnection();
@@ -345,7 +344,7 @@ public class FtpCommand {
 	 * Affiche le dossier courant
 	 */
 	public void processPWD() {
-		messageMan.sendMessage(direcory);
+		messageMan.sendMessage(directory);
 	}
 
 	/**

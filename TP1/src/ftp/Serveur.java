@@ -1,6 +1,5 @@
 package ftp;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -43,10 +42,10 @@ public class Serveur {
 
 		final String directory = args[0];
 		ServerSocket ss = null;
-		CreateSocket cs = new CreateSocket (port);
+		CreateSocket cs = new CreateSocket ();
 
 		/* creation du socket du serveur */
-		if ((ss = cs.getServerSocket()) == null) {
+		if ((ss = cs.getServerSocket(port)) == null) {
 			System.err.println(ERROR_SERVER_NULL);
 			return;
 		}
