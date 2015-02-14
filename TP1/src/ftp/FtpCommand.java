@@ -18,6 +18,7 @@ import file.FileManagement;
  */
 public class FtpCommand {
 
+	private static final String PWD = "257 ";
 	private static final String PASV_MESSAGE = "227 127,0,0,1,4,2";
 	private static final String ERROR_CONNECTION = "425 Can't open data connection.";
 	private static final String FORGOT_PORT = " : you forgot the command PORT or PASV";
@@ -38,9 +39,6 @@ public class FtpCommand {
 	private static final String PORT_SUCCESSFUL = "200 PORT command successful.";
 	
 	private static final String ERROR_SOCKET_NULL = "Erreur socket null";
-
-	// TODO
-	//private static final String ERROR_SEND_FILE = "Erreur lors de la lecture du fichier";
 
 	/**
 	 * Gestionnaire de message
@@ -344,7 +342,7 @@ public class FtpCommand {
 	 * Affiche le dossier courant
 	 */
 	public void processPWD() {
-		messageMan.sendMessage(directory);
+		messageMan.sendMessage(PWD + directory);
 	}
 
 	/**

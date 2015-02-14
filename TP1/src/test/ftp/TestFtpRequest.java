@@ -10,11 +10,8 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 import org.junit.Test;
-
-import file.FileManagement;
 
 public class TestFtpRequest {
 
@@ -24,9 +21,6 @@ public class TestFtpRequest {
 	private static final String LOGIN_OK = "230 Login successful.";
 	private static final String SPECIFY_MDP = "331 Please specify the password.";
 	private static final String PORT_SUCCESSFUL = "200 PORT command successful.";
-	private static final String BEGIN_TRANSFERT = "150 Opening ASCII mode data connection for file list.";
-	private static final String END_TRANSFERT = "226 Transfer complete.";
-	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site.";
 	private static final String ERROR_PARAMETER = "501 Syntax error in parameters or arguments";
 	private static final String ERROR_IDENTIFICATION = "430 Invalid username or password.";
 	private static final String BEGIN_CONNECTION_DATA = "150 open data connection";
@@ -220,7 +214,27 @@ public class TestFtpRequest {
 
 		writer.writeBytes("PASV" + END_LINE);
 		answer = reader.readLine();
-		assertEquals("test de la commande port: mauvais format", answer, PASV_MESSAGE);
+		assertEquals("test de la commande pasv", answer, PASV_MESSAGE);
+	}
+	
+	@Test
+	public void TestPWD() throws UnknownHostException, IOException {
+		
+		String answer;
+		Socket s = new Socket("localhost", 1024);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				s.getInputStream()));
+		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
+		answer = reader.readLine();// le welcome
+
+		writer.writeBytes("USER salsabile" + END_LINE);
+		answer = reader.readLine();
+		writer.writeBytes("PASS ok" + END_LINE);
+		answer = reader.readLine();
+		
+		writer.writeBytes("PWD" + END_LINE);
+		answer = reader.readLine();
+		assertEquals("test de la commande pwd", answer, "257 dossier_test/");
 	}
 
 }
