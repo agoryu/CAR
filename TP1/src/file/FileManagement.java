@@ -3,34 +3,40 @@ package file;
 import java.io.*;
 
 /**
- * @author agoryu
+ * Classe permettant de lire et écrire dans des fichiers
+ * 
+ * @author elliot et salsabile
  *
  */
 public class FileManagement {
 
+	private static final String ERROR_NOT_POSSIBLE_TO_WRITE = "Erreur impossible de lire dans le fichier";
+	private static final String ERROR_NO_FILE = "Erreur le fichier est inexistant.";
 	private static final String ERROR_PARAMETER_READ = "Erreur l'argument est vide dans la méthode de lecture de fichier";
 	private static final String ERROR_PARAMETER_WRITE = "Erreur l'un des paramètres de la méthode writeFile est vide";
 
 	/**
-	 * Ecriture de donnée dans un fichier 
+	 * Ecriture de donnée dans un fichier
 	 * 
 	 * @param o
 	 *            Données à écrire
 	 * @param fichier
 	 *            Nom fichier
+	 * 
+	 * @return Vrai si l'opération s'est bien passé, faux sinon
 	 */
-	public boolean writeFile(byte[] o, String fichier) {
-		
+	public boolean writeFile(final byte[] data, final String fichier) {
+
 		FileOutputStream fos;
 		ObjectOutputStream out = null;
 		boolean result = false;
-		
-		if(o == null || fichier == null) {
+
+		if (data == null || fichier == null) {
 			System.err.println(ERROR_PARAMETER_WRITE);
 			return false;
 		}
-		
-		if(fichier.compareTo("") == 0) {
+
+		if (fichier.compareTo("") == 0) {
 			System.err.println(ERROR_PARAMETER_WRITE);
 			return false;
 		}
@@ -38,7 +44,7 @@ public class FileManagement {
 		try {
 			fos = new FileOutputStream(fichier);
 			out = new ObjectOutputStream(fos);
-			out.write(o);
+			out.write(data);
 			result = true;
 		} catch (final FileNotFoundException e) {
 			e.printStackTrace();
@@ -57,7 +63,7 @@ public class FileManagement {
 				}
 			}
 		}
-		
+
 		return result;
 
 	}
@@ -67,29 +73,29 @@ public class FileManagement {
 	 * 
 	 * @param f
 	 *            nom du fichier
-	 * @return
+	 * @return Les données lu dans le fichier
 	 */
-	public byte[] readFile(String f) {
-		
+	public byte[] readFile(final String f) {
+
 		FileInputStream fin;
 		DataInputStream input = null;
 		byte[] data = null;
-		if(f == null) {
+
+		if (f == null) {
 			System.err.println(ERROR_PARAMETER_READ);
 			return null;
 		}
-		
+
 		try {
 			fin = new FileInputStream(f);
 			input = new DataInputStream(fin);
 			final int size = input.available();
 			data = new byte[size];
 			input.read(data);
-		} catch (FileNotFoundException e) {
-			// TODO
-			System.out.println("Aucun fichier BD");
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (final FileNotFoundException e) {
+			System.err.println(ERROR_NO_FILE);
+		} catch (final IOException e) {
+			System.err.println(ERROR_NOT_POSSIBLE_TO_WRITE);
 		}
 
 		finally {
@@ -101,9 +107,7 @@ public class FileManagement {
 				}
 			}
 		}
-
 		return data;
-
 	}
 
 }

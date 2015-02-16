@@ -6,11 +6,13 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 /**
+ * Thread qui gère un client.
+ * 
  * @author elliot et salsabile
  *
  */
 public class FtpRequest implements Runnable {
-	
+
 	private static final String ERROR_NOT_CONNECTED = "530 Not logged in.";
 	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site.";
 
@@ -39,12 +41,12 @@ public class FtpRequest implements Runnable {
 	 * Vérifie si l'utilisateur est connecté
 	 */
 	private boolean isConnected;
-	
+
 	/**
 	 * Executeur de commande
 	 */
 	private FtpCommand runCommand;
-	
+
 	/**
 	 * Gestionnaire de message
 	 */
@@ -68,6 +70,9 @@ public class FtpRequest implements Runnable {
 		runCommand = new FtpCommand(directory, bdd, socket, messageMan);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
 	@Override
 	public void run() {
 		runCommand.connection();
@@ -129,58 +134,58 @@ public class FtpRequest implements Runnable {
 
 		String instructionFormat = instruction.replaceAll("[\r\n]+", "");
 
-		//enléve les retours chariots
+		// enléve les retours chariots
 		String parametreFormat = parametre.replaceAll("[\r\n]+", "");
-		
+
 		System.out.println(instructionFormat + " " + parametreFormat);
 
-		if(instruction.compareTo(USER) == 0) {
-			if(!isConnected)
+		if (instruction.compareTo(USER) == 0) {
+			if (!isConnected)
 				runCommand.processUSER(parametreFormat);
-		} else if(instruction.compareTo(PASS) == 0) {
-			if(!isConnected)
+		} else if (instruction.compareTo(PASS) == 0) {
+			if (!isConnected)
 				isConnected = runCommand.processPASS(parametreFormat);
-		} else if(instruction.compareTo(RETR) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(RETR) == 0) {
+			if (isConnected)
 				runCommand.processRETR(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-		} else if(instruction.compareTo(STOR) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(STOR) == 0) {
+			if (isConnected)
 				runCommand.processSTOR(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-		} else if(instruction.compareTo(LIST) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(LIST) == 0) {
+			if (isConnected)
 				runCommand.processLIST();
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-		} else if(instruction.compareTo(QUIT) == 0) {
+		} else if (instruction.compareTo(QUIT) == 0) {
 			runCommand.processQUIT();
 			isFinish = true;
 			isConnected = false;
-		} else if(instruction.compareTo(PORT) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(PORT) == 0) {
+			if (isConnected)
 				runCommand.processPORT(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-		} else if(instruction.compareTo(PASV) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(PASV) == 0) {
+			if (isConnected)
 				runCommand.processPASV();
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-		} else if(instruction.compareTo(PWD) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(PWD) == 0) {
+			if (isConnected)
 				runCommand.processPWD();
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-		} else if(instruction.compareTo(CWD) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(CWD) == 0) {
+			if (isConnected)
 				runCommand.processCWD(parametreFormat);
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
-		} else if(instruction.compareTo(CDUP) == 0) {
-			if(isConnected)
+		} else if (instruction.compareTo(CDUP) == 0) {
+			if (isConnected)
 				runCommand.processCDUP();
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);

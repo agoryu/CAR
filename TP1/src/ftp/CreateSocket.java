@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Classe de gestion de serverSocket
+ * 
+ * @author elliot et salsabile
+ *
+ */
 public class CreateSocket {
 
 	/* message d'erreur */
@@ -47,13 +53,16 @@ public class CreateSocket {
 		}
 		return ss;
 	}
-	
-	/** Ferme un server socket
-	 * @param ss Server socket à fermer 
+
+	/**
+	 * Ferme un server socket
+	 * 
+	 * @param ss
+	 *            Server socket à fermer
 	 */
 	public boolean closeServerSocket(final ServerSocket ss) {
 
-		if(ss == null) {
+		if (ss == null) {
 			return false;
 		}
 		try {
@@ -62,9 +71,9 @@ public class CreateSocket {
 		} catch (final IOException e) {
 			System.err.println(ERROR_CLOSE_SOCKET);
 		}
-		
+
 		return false;
-		
+
 	}
 
 }

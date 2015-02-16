@@ -20,8 +20,6 @@ import file.FileManagement;
 public class FtpCommand {
 
 	private static final String NOT_DIRECTORY = " not directory";
-	private static final String CHANGE_DIRECTORY = "250 Directory successfully changed.";
-	private static final String ERROR_DIRECTORY_PATH = "450 Requested file action not taken.";
 	private static final String REGEX_PORT = "\\d{1,3}(,\\d{1,3}){5}";
 	private static final String FORGOT_PORT = " : you forgot the command PORT or PASV";
 	private static final String NOT_A_NUMBER = " : parameter is not a number";
@@ -45,6 +43,8 @@ public class FtpCommand {
 	private static final String BEGIN_CONNECTION_DATA = "150 open data connection";
 	private static final String ERROR_CONNECTION = "425 Can't open data connection.";
 	private static final String BEGIN_LIST = "212- ";
+	private static final String CHANGE_DIRECTORY = "250 Directory successfully changed.";
+	private static final String ERROR_DIRECTORY_PATH = "450 Requested file action not taken.";
 
 	/**
 	 * Gestionnaire de message
