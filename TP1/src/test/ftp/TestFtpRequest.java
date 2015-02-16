@@ -194,11 +194,6 @@ public class TestFtpRequest {
 	}
 	
 	@Test
-	public void TestLIST() throws UnknownHostException, IOException {
-		
-	}
-	
-	@Test
 	public void TestPASV() throws UnknownHostException, IOException {
 		String answer;
 		Socket s = new Socket("localhost", 1024);
@@ -235,6 +230,49 @@ public class TestFtpRequest {
 		writer.writeBytes("PWD" + END_LINE);
 		answer = reader.readLine();
 		assertEquals("test de la commande pwd", answer, "257 dossier_test/");
+	}
+	
+	@Test
+	public void TestLIST() throws UnknownHostException, IOException {
+		//TODO
+		/*String answer;
+		Socket s = new Socket("localhost", 1024);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				s.getInputStream()));
+		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
+		answer = reader.readLine();// le welcome
+
+		writer.writeBytes("USER salsabile" + END_LINE);
+		answer = reader.readLine();
+		writer.writeBytes("PASS ok" + END_LINE);
+		answer = reader.readLine();
+		writer.writeBytes("PORT 127,0,0,1,4,2" + END_LINE);
+		answer = reader.readLine();
+
+		writer.writeBytes("LIST" + END_LINE);
+		answer = reader.readLine();	
+		//assertEquals("test de la commande pwd", answer, "257 dossier_test/");*/
+		
+	}
+	
+	@Test
+	public void TestCDUP() throws UnknownHostException, IOException {
+		
+		/*String answer;
+		Socket s = new Socket("localhost", 1024);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				s.getInputStream()));
+		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
+		answer = reader.readLine();// le welcome
+
+		writer.writeBytes("USER salsabile" + END_LINE);
+		answer = reader.readLine();
+		writer.writeBytes("PASS ok" + END_LINE);
+		answer = reader.readLine();
+		
+		writer.writeBytes("CDUP" + END_LINE);
+		answer = reader.readLine();*/
+		
 	}
 
 }

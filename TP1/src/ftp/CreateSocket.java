@@ -43,6 +43,7 @@ public class CreateSocket {
 			ss = new ServerSocket(port);
 		} catch (final IOException e) {
 			System.err.println(ERROR_SERVER_SOCKET);
+			e.printStackTrace();
 		}
 		return ss;
 	}

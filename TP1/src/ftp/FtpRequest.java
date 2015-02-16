@@ -27,6 +27,8 @@ public class FtpRequest implements Runnable {
 	private static final String PORT = "PORT";
 	private static final String PASV = "PASV";
 	private static final String PWD = "PWD";
+	private static final String CWD = "CWD";
+	private static final String CDUP = "CDUP";
 
 	/**
 	 * Variable permettant la fermeture de la connection
@@ -150,7 +152,7 @@ public class FtpRequest implements Runnable {
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 		} else if(instruction.compareTo(LIST) == 0) {
 			if(isConnected)
-				runCommand.processLIST(parametreFormat);
+				runCommand.processLIST();
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 		} else if(instruction.compareTo(QUIT) == 0) {
@@ -170,6 +172,16 @@ public class FtpRequest implements Runnable {
 		} else if(instruction.compareTo(PWD) == 0) {
 			if(isConnected)
 				runCommand.processPWD();
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
+		} else if(instruction.compareTo(CWD) == 0) {
+			if(isConnected)
+				runCommand.processCWD(parametreFormat);
+			else
+				messageMan.sendMessage(ERROR_NOT_CONNECTED);
+		} else if(instruction.compareTo(CDUP) == 0) {
+			if(isConnected)
+				runCommand.processCDUP();
 			else
 				messageMan.sendMessage(ERROR_NOT_CONNECTED);
 		} else {
