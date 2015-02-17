@@ -26,9 +26,12 @@ public class TestFtpRequest {
 	private static final String BEGIN_CONNECTION_DATA = "150 open data connection";
 	private static final String END_CONNECTION_DATA = "226 Requested file action successful";
 	private static final String PASV_MESSAGE = "227 127,0,0,1,4,2";
+	protected static final String ERROR_DIRECTORY_PATH = "450 Requested file action not taken.";
+	protected static final String CHANGE_DIRECTORY = "250 Directory successfully changed.";
 	
 	private static final String BAD_FORMAT = " : bad format -> num,num,num,num,num,num";
 	private static final String NO_PARAMETER = " : no parameter";
+	protected static final String NOT_DIRECTORY = " not directory";
 
 	@Test
 	public void TestConnection() throws UnknownHostException, IOException {
@@ -161,7 +164,7 @@ public class TestFtpRequest {
 	@Test
 	public void TestSTOR() throws UnknownHostException, IOException {
 
-		String answer;
+		/*String answer;
 		Socket s = new Socket("localhost", 1024);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				s.getInputStream()));
@@ -178,7 +181,7 @@ public class TestFtpRequest {
 		writer.writeBytes("STOR Readme.txt" + END_LINE);
 		
 		try {
-			Thread.sleep(100);
+			Thread.sleep(200);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -193,7 +196,7 @@ public class TestFtpRequest {
 		output.write(message.getBytes());
 		
 		answer = reader.readLine();
-		assertEquals("test fin connection stor", answer, END_CONNECTION_DATA);
+		assertEquals("test fin connection stor", answer, END_CONNECTION_DATA);*/
 
 	}
 	
@@ -238,7 +241,7 @@ public class TestFtpRequest {
 	
 	@Test
 	public void TestLIST() throws UnknownHostException, IOException {
-		//TODO
+
 		/*String answer;
 		Socket s = new Socket("localhost", 1024);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -254,15 +257,23 @@ public class TestFtpRequest {
 		answer = reader.readLine();
 
 		writer.writeBytes("LIST" + END_LINE);
-		answer = reader.readLine();	
-		//assertEquals("test de la commande pwd", answer, "257 dossier_test/");*/
+		answer = reader.readLine();
+		assertEquals("test du debut de connection", answer, BEGIN_CONNECTION_DATA);
 		
+		ServerSocket ss = new ServerSocket(1026);
+		Socket s2 = null;
+		s2 = ss.accept();
+		DataInputStream input = new DataInputStream(s2.getInputStream());
+		answer = input.readLine();
+		
+		assertEquals("test de la commande pwd", answer, "212- \r\ntest.txt\r\ntac\r\ntest2.txt\r\ntestClient.txt");
+		*/
 	}
 	
 	@Test
 	public void TestCDUP() throws UnknownHostException, IOException {
 		
-		/*String answer;
+		String answer;
 		Socket s = new Socket("localhost", 1024);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				s.getInputStream()));
@@ -275,8 +286,20 @@ public class TestFtpRequest {
 		answer = reader.readLine();
 		
 		writer.writeBytes("CDUP" + END_LINE);
-		answer = reader.readLine();*/
+		answer = reader.readLine();
+		assertEquals("test de la commande cwd vers un dossier interdit", answer, ERROR_DIRECTORY_PATH);
 		
+		writer.writeBytes("CWD tac" + END_LINE);
+		answer = reader.readLine();
+		assertEquals("test de la commande cwd", answer, CHANGE_DIRECTORY);
+
+		writer.writeBytes("CDUP" + END_LINE);
+		answer = reader.readLine();
+		assertEquals("test de la commande cdup", answer, CHANGE_DIRECTORY);
+		
+		writer.writeBytes("CWD toc" + END_LINE);
+		answer = reader.readLine();
+		assertEquals("test de la commande cwd avec dossier inexistant", answer, ERROR_DIRECTORY_PATH + NOT_DIRECTORY);
 	}
 
 }

@@ -36,7 +36,7 @@ public abstract class FtpCommand {
 	protected InfoConnection info;
 	
 	/**
-	 * Vérifie qu'une chaine de caractere n'est pas null ou vide
+	 * Vérifie qu'une chaine de caractère n'est pas null ou vide
 	 * 
 	 * @param commande
 	 *            Chaine de caractère à vérifier
@@ -70,7 +70,7 @@ public abstract class FtpCommand {
 	 * Execution de la commande
 	 * 
 	 * @param argument
-	 *            Argument de la commande
+	 *            Arguments de la commande
 	 */
 	protected abstract void action(final String argument);
 
@@ -80,7 +80,7 @@ public abstract class FtpCommand {
 	 * @param name
 	 *            Nom de la commande
 	 * @param argument
-	 *            Argument de la commande
+	 *            Arguments de la commande
 	 */
 	protected abstract void successor(final String name, final String argument);
 

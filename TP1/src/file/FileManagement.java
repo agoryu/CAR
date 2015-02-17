@@ -18,7 +18,7 @@ public class FileManagement {
 	/**
 	 * Ecriture de donnée dans un fichier
 	 * 
-	 * @param o
+	 * @param data
 	 *            Données à écrire
 	 * @param fichier
 	 *            Nom fichier
@@ -109,5 +109,4 @@ public class FileManagement {
 		}
 		return data;
 	}
-
 }
