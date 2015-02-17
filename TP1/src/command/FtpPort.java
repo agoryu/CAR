@@ -11,13 +11,13 @@ public class FtpPort extends FtpCommand {
 	private static FtpPort command;
 	private static final String PORT = "PORT";
 	
-	private FtpPort(final InfoConnection info) {
-		super(info);
+	private FtpPort() {
 	}
 	
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 		
+		this.info = info;
 		if(name.compareTo(PORT) == 0) {
 			this.action(argument);
 		} else {
@@ -83,13 +83,13 @@ public class FtpPort extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpPasv.getInstance(info).execute(name, argument);
+		FtpPasv.getInstance().execute(name, argument, info);
 		
 	}
 	
-	public static FtpPort getInstance(final InfoConnection info) {
+	public static FtpPort getInstance() {
 		if (command == null) {
-			command = new FtpPort(info);
+			command = new FtpPort();
 		}
 		return command;
 	}

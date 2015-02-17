@@ -1,7 +1,5 @@
 package ftp;
 
-import java.net.Socket;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -16,50 +14,37 @@ import command.FtpUser;
 public class FtpRequest implements Runnable {
 
 	private static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site.";
-
-	/* message pour le developpeur */
+	private static final String WELCOME = "220 Service ready for new user.";
 	private static final String ERROR_ARGUMENT = "Erreur dans les arguments de ftpRequest";
 
-	/**
-	 * Executeur de commande
-	 */
-	private FtpCommand runCommand;
-
-	/**
-	 * Gestionnaire de message
-	 */
-	private MessageManager messageMan;
-	
 	/**
 	 * Information concernant la connection
 	 */
 	private InfoConnection info;
 
-	public FtpRequest(final Socket socket, final String directory,
-			final Map<String, String> bdd) {
+	/**
+	 * Enregistre les informaiton de connexion
+	 * 
+	 * @param info
+	 */
+	public FtpRequest(final InfoConnection info) {
 
-		if (socket == null || directory == null || bdd == null) {
+		if (info == null) {
 			throw new NullPointerException(ERROR_ARGUMENT);
 		}
 
-		if (bdd.isEmpty()) {
-			throw new NullPointerException(ERROR_ARGUMENT);
-		}
+		this.info = info;
 
-		messageMan = new MessageManager(socket);
-		runCommand = new FtpCommand(directory, bdd, messageMan);
-		
-		info = new InfoConnection(bdd, directory, messageMan);
-		
-		
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
 	public void run() {
-		runCommand.connection();
+		info.getMessageMan().sendMessage(WELCOME);
 		processRequest();
 
 	}
@@ -73,9 +58,12 @@ public class FtpRequest implements Runnable {
 
 			/* gestion de la requete par un thread */
 			String commande = null;
-			commande = messageMan.receiveMessage();
+			commande = info.getMessageMan().receiveMessage();
 
-			if (runCommand.checkCommand(commande)) {
+			if (commande == null) {
+				continue;
+			}
+			if (commande != "") {
 				// Recupérer le nom de la commande
 				final StringTokenizer parse = new StringTokenizer(commande, " ");
 				final String instruction = parse.nextToken();
@@ -85,19 +73,20 @@ public class FtpRequest implements Runnable {
 				}
 
 				if (instruction.compareTo("") == 0) {
-					messageMan.sendMessage(ERROR_NO_COMMAND);
+					info.getMessageMan().sendMessage(ERROR_NO_COMMAND);
 					continue;
 				}
 
 				/* execution de la commande */
 				try {
-					FtpUser.getInstance(info).execute(instruction, parse.nextToken());
+					FtpUser.getInstance().execute(instruction,
+							parse.nextToken(), info);
 				} catch (final NoSuchElementException e) {
-					FtpUser.getInstance(info).execute(instruction, "");
+					FtpUser.getInstance().execute(instruction, "", info);
 				}
 			}
 		}
 
-	}	
+	}
 
 }

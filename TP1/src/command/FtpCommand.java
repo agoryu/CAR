@@ -32,31 +32,9 @@ public abstract class FtpCommand {
 	protected static final String ERROR_DIRECTORY_PATH = "450 Requested file action not taken.";
 	protected static final String ERROR_NOT_CONNECTED = "530 Not logged in.";
 	protected static final String ERROR_NO_COMMAND = "202 Command not implemented, superfluous at this site.";
-	
+
 	protected InfoConnection info;
-
-
-	/**
-	 * Initialise la classe avec l'ensemble des parametre de connection
-	 * 
-	 * @param directory
-	 *            Dossier visible par le client
-	 * @param bdd
-	 *            BDD contenant les comptes client
-	 * @param socket
-	 *            Connection avec le client
-	 * @param messageManager
-	 *            Objet permettant l'envoie et la reception de message du client
-	 */
-	public FtpCommand(final InfoConnection info) {
-
-		if (info == null) {
-			throw new NullPointerException(ERROR_ARGUMENT);
-		}
-
-		this.info = info;
-	}
-
+	
 	/**
 	 * Vérifie qu'une chaine de caractere n'est pas null ou vide
 	 * 
@@ -78,10 +56,32 @@ public abstract class FtpCommand {
 
 	}
 
-	public abstract void execute(final String name, final String argument);
+	/**
+	 * Vérifie si la commande est bien la commande name
+	 * 
+	 * @param name
+	 *            Nom de la commande
+	 * @param argument
+	 *            Arguments de la commande
+	 */
+	public abstract void execute(final String name, final String argument, final InfoConnection info);
 
+	/**
+	 * Execution de la commande
+	 * 
+	 * @param argument
+	 *            Argument de la commande
+	 */
 	protected abstract void action(final String argument);
 
+	/**
+	 * Si la commande demandé n'est pas la bonne on passe à la commande suivante
+	 * 
+	 * @param name
+	 *            Nom de la commande
+	 * @param argument
+	 *            Argument de la commande
+	 */
 	protected abstract void successor(final String name, final String argument);
 
 }

@@ -7,13 +7,13 @@ public class FtpPasv extends FtpCommand {
 	private static FtpPasv command;
 	private static final String PASV = "PASV";
 
-	private FtpPasv(final InfoConnection info) {
-		super(info);
+	private FtpPasv() {
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 
+		this.info = info;
 		if (name.compareTo(PASV) == 0) {
 			this.action(argument);
 		} else {
@@ -38,13 +38,13 @@ public class FtpPasv extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpPwd.getInstance(info).execute(name, argument);
+		FtpPwd.getInstance().execute(name, argument, info);
 
 	}
 
-	public static FtpPasv getInstance(final InfoConnection info) {
+	public static FtpPasv getInstance() {
 		if (command == null) {
-			command = new FtpPasv(info);
+			command = new FtpPasv();
 		}
 		return command;
 	}

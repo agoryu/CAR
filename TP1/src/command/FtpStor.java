@@ -13,14 +13,14 @@ public class FtpStor extends FtpCommand {
 	private static FtpStor command;
 	private static final String STOR = "STOR";
 
-	private FtpStor(final InfoConnection info) {
+	private FtpStor() {
 
-		super(info);
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 
+		this.info = info;
 		if (name.compareTo(STOR) == 0) {
 			this.action(argument);
 		} else {
@@ -87,13 +87,13 @@ public class FtpStor extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpQuit.getInstance(info).execute(name, argument);
+		FtpQuit.getInstance().execute(name, argument, info);
 
 	}
 
-	public static FtpStor getInstance(final InfoConnection info) {
+	public static FtpStor getInstance() {
 		if (command == null) {
-			command = new FtpStor(info);
+			command = new FtpStor();
 		}
 		return command;
 	}

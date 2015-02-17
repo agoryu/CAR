@@ -7,13 +7,13 @@ public class FtpQuit extends FtpCommand {
 	private static FtpQuit command;
 	private static final String QUIT = "QUIT";
 
-	private FtpQuit(final InfoConnection info) {
-		super(info);
+	private FtpQuit() {
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 
+		this.info = info;
 		if (name.compareTo(QUIT) == 0) {
 			this.action(argument);
 		} else {
@@ -33,13 +33,13 @@ public class FtpQuit extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpPort.getInstance(info).execute(name, argument);
+		FtpPort.getInstance().execute(name, argument,info);
 
 	}
 
-	public static FtpQuit getInstance(final InfoConnection info) {
+	public static FtpQuit getInstance() {
 		if (command == null) {
-			command = new FtpQuit(info);
+			command = new FtpQuit();
 		}
 		return command;
 	}

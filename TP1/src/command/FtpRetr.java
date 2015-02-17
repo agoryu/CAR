@@ -12,14 +12,14 @@ public class FtpRetr extends FtpCommand {
 	private static FtpRetr command;
 	private static final String RETR = "RETR";
 
-	private FtpRetr(final InfoConnection info) {
+	private FtpRetr() {
 
-		super(info);
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 		
+		this.info = info;
 		if (name.compareTo(RETR) == 0) {
 			this.action(argument);
 		} else {
@@ -79,13 +79,13 @@ public class FtpRetr extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpStor.getInstance(info)
-				.execute(name, argument);
+		FtpStor.getInstance()
+				.execute(name, argument, info);
 	}
 
-	public static FtpRetr getInstance(final InfoConnection info) {
+	public static FtpRetr getInstance() {
 		if (command == null) {
-			command = new FtpRetr(info);
+			command = new FtpRetr();
 		}
 		return command;
 	}

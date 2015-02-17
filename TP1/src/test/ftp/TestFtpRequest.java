@@ -67,7 +67,10 @@ public class TestFtpRequest {
 		writer.writeBytes("PASS link" + END_LINE);
 		answer = reader.readLine();
 		assertEquals("test du pass elliot correcte", answer, LOGIN_OK);
-
+		
+		writer.writeBytes("QUIT" + END_LINE);
+		answer = reader.readLine();
+		
 	}
 
 	@Test
@@ -88,18 +91,19 @@ public class TestFtpRequest {
 
 	@Test
 	public void TestPORT() throws UnknownHostException, IOException {
+		
 		String answer;
 		Socket s = new Socket("localhost", 1024);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				s.getInputStream()));
 		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
 		answer = reader.readLine();// le welcome
-
+		
 		writer.writeBytes("USER elliot" + END_LINE);
 		answer = reader.readLine();
 		writer.writeBytes("PASS link" + END_LINE);
 		answer = reader.readLine();
-
+		
 		writer.writeBytes("PORT 127,0,0,1," + END_LINE);
 		answer = reader.readLine();
 		assertEquals("test de la commande port: mauvais format", answer, ERROR_PARAMETER + BAD_FORMAT);
@@ -122,7 +126,7 @@ public class TestFtpRequest {
 				s.getInputStream()));
 		DataOutputStream writer = new DataOutputStream(s.getOutputStream());
 		answer = reader.readLine();// le welcome
-
+		
 		writer.writeBytes("USER salsabile" + END_LINE);
 		answer = reader.readLine();
 		writer.writeBytes("PASS ok" + END_LINE);

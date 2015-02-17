@@ -7,13 +7,13 @@ public class FtpPass extends FtpCommand {
 	private static final String PASS = "PASS";
 	private static FtpPass command;
 
-	private FtpPass(final InfoConnection info) {
-		super(info);
+	private FtpPass() {
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 
+		this.info = info;
 		if (name.compareTo(PASS) == 0) {
 			this.action(argument);
 		} else {
@@ -60,13 +60,13 @@ public class FtpPass extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpList.getInstance(info).execute(name, argument);
+		FtpList.getInstance().execute(name, argument, info);
 	}
 
-	public static FtpPass getInstance(final InfoConnection info) {
+	public static FtpPass getInstance() {
 
 		if (command == null) {
-			command = new FtpPass(info);
+			command = new FtpPass();
 		}
 		return command;
 	}

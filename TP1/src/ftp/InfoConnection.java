@@ -1,7 +1,14 @@
 package ftp;
 
+import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Classe stockant les informations sur la connection
+ * 
+ * @author elliot et salsabile
+ *
+ */
 public class InfoConnection {
 
 	/**
@@ -49,21 +56,21 @@ public class InfoConnection {
 	 * Vérifie si l'utilisateur est connecté
 	 */
 	protected boolean isConnected;
-	
+
 	/**
 	 * Variable permettant la fermeture de la connection
 	 */
 	private boolean isFinish;
 
 	public InfoConnection(final Map<String, String> bdd,
-			final String directory, MessageManager messageManager) {
+			final String directory, final MessageManager messageManager) {
 
 		this.messageMan = messageManager;
-		this.bdd = bdd;
+		this.bdd = new HashMap<String, String>(bdd);
 		portDownload = 0;
 		ipDownload = "";
-		this.directory = directory;
-		this.beginDirectory = directory;
+		this.directory = new String(directory);
+		this.beginDirectory = new String(directory);
 		this.login = "";
 		havePrivilege = false;
 		isConnected = false;

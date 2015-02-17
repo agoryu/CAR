@@ -9,13 +9,13 @@ public class FtpCdup extends FtpCommand {
 	private static FtpCdup command;
 	private static final String CDUP = "CDUP";
 	
-	private FtpCdup(final InfoConnection info) {
-		super(info);
+	private FtpCdup() {
 	}
 	
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 		
+		this.info = info;
 		if(name.compareTo(CDUP) == 0) {
 			this.action(argument);
 		} else {
@@ -59,9 +59,9 @@ public class FtpCdup extends FtpCommand {
 		info.getMessageMan().sendMessage(ERROR_NO_COMMAND);
 	}
 	
-	public static FtpCdup getInstance(final InfoConnection info) {
+	public static FtpCdup getInstance() {
 		if (command == null) {
-			command = new FtpCdup(info);
+			command = new FtpCdup();
 		}
 		return command;
 	}

@@ -7,13 +7,13 @@ public class FtpUser extends FtpCommand {
 	private static final String USER = "USER";
 	private static FtpUser command;
 
-	private FtpUser(final InfoConnection info) {
-		super(info);
+	private FtpUser() {
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 
+		this.info = info;
 		if (name.compareTo(USER) == 0) {
 			this.action(argument);
 		} else {
@@ -45,14 +45,14 @@ public class FtpUser extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpPass.getInstance(info).execute(name, argument);
+		FtpPass.getInstance().execute(name, argument, info);
 
 	}
 
-	public static FtpCommand getInstance(final InfoConnection info) {
+	public static FtpCommand getInstance() {
 
 		if (command == null) {
-			command = new FtpUser(info);
+			command = new FtpUser();
 		}
 		return command;
 	}

@@ -13,14 +13,14 @@ public class FtpList extends FtpCommand {
 	private static final String LIST = "LIST";
 	private static FtpList command;
 
-	private FtpList(final InfoConnection info) {
+	private FtpList() {
 
-		super(info);
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 
+		this.info = info;
 		if (name.compareTo(LIST) == 0) {
 			this.action(argument);
 		} else {
@@ -94,15 +94,15 @@ public class FtpList extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpRetr.getInstance(info)
-				.execute(name, argument);
+		FtpRetr.getInstance()
+				.execute(name, argument, info);
 
 	}
 
-	public static FtpList getInstance(final InfoConnection info) {
+	public static FtpList getInstance() {
 
 		if (command == null) {
-			command = new FtpList(info);
+			command = new FtpList();
 		}
 		return command;
 	}

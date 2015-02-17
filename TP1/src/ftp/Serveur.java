@@ -55,7 +55,7 @@ public class Serveur {
 		bdd.put("anonymous", "");
 		bdd.put("elliot", "link");
 		bdd.put("salsabile", "ok");
-
+		
 		while (true) {
 
 			/* reception du socket client */
@@ -66,11 +66,7 @@ public class Serveur {
 			createThread(socket, directory);
 
 		}
-	}
-
-	
-
-	
+	}	
 
 	/**
 	 * Création d'un thread qui va interagir avec un client connecté
@@ -81,7 +77,13 @@ public class Serveur {
 	 *            Répertoir à la disposition d'un client
 	 */
 	private static void createThread(final Socket socket, final String directory) {
-		final FtpRequest ft = new FtpRequest(socket, directory, bdd);
+		
+		if(socket == null) {
+			return;
+		}
+		
+		final InfoConnection tmp = new InfoConnection(bdd, directory, new MessageManager(socket));
+		final FtpRequest ft = new FtpRequest(tmp);
 		final Thread t = new Thread(ft);
 		t.start();
 	}

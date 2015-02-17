@@ -10,13 +10,14 @@ public class FtpCwd extends FtpCommand {
 	private static FtpCwd command;
 	private static final String CWD = "CWD";
 
-	private FtpCwd(final InfoConnection info) {
-		super(info);
+	private FtpCwd() {
 	}
 
 	@Override
-	public void execute(final String name, final String argument) {
+	public void execute(final String name, final String argument, final InfoConnection info) {
 
+		this.info = info;
+		
 		if (name.compareTo(CWD) == 0) {
 			this.action(argument);
 		} else {
@@ -73,14 +74,14 @@ public class FtpCwd extends FtpCommand {
 
 	@Override
 	public void successor(final String name, final String argument) {
-		FtpCdup.getInstance(info)
-				.execute(name, argument);
+		FtpCdup.getInstance()
+				.execute(name, argument, info);
 
 	}
 
-	public static FtpCwd getInstance(final InfoConnection info) {
+	public static FtpCwd getInstance() {
 		if (command == null) {
-			command = new FtpCwd(info);
+			command = new FtpCwd();
 		}
 		return command;
 	}
