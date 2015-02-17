@@ -70,7 +70,7 @@ public class FtpCommand {
 	 * Repertoire à la disposition du client
 	 */
 	private String directory;
-	
+
 	/**
 	 * Premier repertoir visible par le client
 	 */
@@ -86,6 +86,7 @@ public class FtpCommand {
 	 * le serveur
 	 */
 	private boolean havePrivilege;
+	
 
 	/**
 	 * Initialise la classe avec l'ensemble des parametre de connection
@@ -100,9 +101,9 @@ public class FtpCommand {
 	 *            Objet permettant l'envoie et la reception de message du client
 	 */
 	public FtpCommand(final String directory, final Map<String, String> bdd,
-			final Socket socket, final MessageManager messageManager) {
+			final MessageManager messageManager) {
 
-		if (socket == null || directory == null || bdd == null) {
+		if (directory == null || bdd == null) {
 			throw new NullPointerException(ERROR_ARGUMENT);
 		}
 
@@ -349,7 +350,7 @@ public class FtpCommand {
 			messageMan.sendMessage(ERROR_PARAMETER);
 			return;
 		}
-		
+
 		/* Verifier que le repertoire courant n'est pas null */
 		if (!checkCommand(directory)) {
 			messageMan.sendMessage(ERROR_PARAMETER);
@@ -358,9 +359,9 @@ public class FtpCommand {
 
 		String[] fileList = null;
 		String result = BEGIN_LIST + END_LINE;
-		
+
 		messageMan.sendMessage(BEGIN_CONNECTION_DATA);
-		
+
 		Socket socket = null;
 		try {
 			socket = new Socket(ipDownload, portDownload);
@@ -373,7 +374,7 @@ public class FtpCommand {
 		try {
 			fileList = new File(directory).list();
 			final int size = fileList.length;
-			
+
 			for (int i = 0; i < size; i++) {
 				result += fileList[i] + END_LINE;
 			}
@@ -381,20 +382,20 @@ public class FtpCommand {
 		} catch (final NullPointerException e) {
 			messageMan.sendMessage(ERROR_PARAMETER);
 		}
-		
+
 		final MessageManager mm = new MessageManager(socket);
 		mm.sendMessageByte(result.getBytes());
-		
+
 		messageMan.sendMessage(END_CONNECTION_DATA);
-		
-		if(socket != null) {
+
+		if (socket != null) {
 			try {
 				socket.close();
 			} catch (IOException e) {
 				mm.closeConnection();
 			}
 		}
-		
+
 		ipDownload = "";
 		portDownload = 0;
 	}
@@ -427,7 +428,7 @@ public class FtpCommand {
 	 * Permet de changer de répertoire
 	 * 
 	 * @param directory
-	 *             répertoire dans lequel on souhaite aller
+	 *            répertoire dans lequel on souhaite aller
 	 */
 	public void processCWD(final String newDirectory) {
 
@@ -436,24 +437,28 @@ public class FtpCommand {
 			messageMan.sendMessage(ERROR_PARAMETER);
 			return;
 		}
-		
-		if(newDirectory.compareTo(beginDirectory) == 0) {
+
+		if (newDirectory.compareTo(beginDirectory) == 0) {
 			this.directory = newDirectory;
 			messageMan.sendMessage(CHANGE_DIRECTORY);
 			return;
 		}
-		
+
 		final File fNewFile = new File(directory + newDirectory);
 		final File fBeginFile = new File(beginDirectory);
-		
-		if(fNewFile.isDirectory()) {
-			final StringTokenizer newDirectoryTocken = new StringTokenizer(fNewFile.getAbsolutePath(), "/");
-			final StringTokenizer firstDirectory = new StringTokenizer(fBeginFile.getAbsolutePath(), "/");
-			
-			/* si le nouveau directory est plus proche de la racine que le directory de depart
-			 * alors c'est une erreur de l'utilisateur
+
+		if (fNewFile.isDirectory()) {
+			final StringTokenizer newDirectoryTocken = new StringTokenizer(
+					fNewFile.getAbsolutePath(), "/");
+			final StringTokenizer firstDirectory = new StringTokenizer(
+					fBeginFile.getAbsolutePath(), "/");
+
+			/*
+			 * si le nouveau directory est plus proche de la racine que le
+			 * directory de depart alors c'est une erreur de l'utilisateur
 			 */
-			if(newDirectoryTocken.countTokens() >= firstDirectory.countTokens()) {
+			if (newDirectoryTocken.countTokens() >= firstDirectory
+					.countTokens()) {
 				this.directory += newDirectory;
 				messageMan.sendMessage(CHANGE_DIRECTORY);
 			} else {
@@ -468,7 +473,7 @@ public class FtpCommand {
 	 * Retourner au dossier parent du repertoire courant
 	 */
 	public void processCDUP() {
-		
+
 		/* Verifier que le repertoire courant n'est pas null */
 		if (!checkCommand(directory)) {
 			messageMan.sendMessage(ERROR_PARAMETER);
@@ -477,8 +482,8 @@ public class FtpCommand {
 
 		File file1 = new File(directory);
 		File file2 = new File(beginDirectory);
-	
-		if(file1.getAbsolutePath().compareTo(file2.getAbsolutePath()) == 0) {
+
+		if (file1.getAbsolutePath().compareTo(file2.getAbsolutePath()) == 0) {
 			messageMan.sendMessage(ERROR_DIRECTORY_PATH);
 		} else {
 			File parentDirectory = file1.getParentFile();
