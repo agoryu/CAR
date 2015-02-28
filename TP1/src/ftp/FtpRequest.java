@@ -79,9 +79,12 @@ public class FtpRequest implements Runnable {
 
 				/* execution de la commande */
 				try {
+					String argument = parse.nextToken();
+					System.out.println(instruction + " / " + argument);
 					FtpUser.getInstance().execute(instruction,
-							parse.nextToken(), info);
+							argument, info);
 				} catch (final NoSuchElementException e) {
+					System.out.println(instruction);
 					FtpUser.getInstance().execute(instruction, "", info);
 				}
 			}
