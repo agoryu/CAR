@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
+import ressource.FileRessource;
 import rs.FTPRestService;
 import rs.JaxRsApiApplication;
 
@@ -32,8 +33,10 @@ public class AppConfig {
 						JAXRSServerFactoryBean.class);
 
 		List<Object> serviceBeans = new ArrayList<Object>();
-		// serviceBeans.add(peopleRestService());
-		// serviceBeans.add(new HelloWorldResource());
+		final FileRessource test = new FileRessource();
+		test.setName("hunter");
+		test.setContent("jaggi rathian lagiacrus");
+		serviceBeans.add(test);
 		serviceBeans.add(new FTPRestService(serviceBeans));
 
 		factory.setServiceBeans(serviceBeans);
