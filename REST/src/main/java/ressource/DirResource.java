@@ -1,7 +1,6 @@
 package ressource;
 
 import java.io.IOException;
-import java.net.SocketException;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -14,13 +13,13 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
 import services.FTPService;
-import exceptions.AuthentificationException;
-import exceptions.ConnectionException;
 import exceptions.MFileNotFoundException;
 
 @Path("/dir")
 public class DirResource {
 	
+	private static final String HERE = "here";
+	private static final String STOR_FORM = "</br><a href=\"http://localhost:8080/rest/api/formStor\"> Add </a>";
 	private static final String FILE_PATH_LINK = "<a href=\"http://localhost:8080/rest/api/file/";
 	private static final String DIR_PATH_LINK = "<a href=\"http://localhost:8080/rest/api/dir/";
 	@Inject private FTPService ftpService;
@@ -30,37 +29,18 @@ public class DirResource {
 	@Path( "/{dir}" )
 	public String getDirContent(@PathParam( "dir" ) final String dir) {
 		
-		String host = "ftp.univ-lille1.fr";
-		String user = "anonymous";
-		String password = "link";
-		int port = 21;
-		
-		FTPClient ftp = new FTPClient();
-		try {
-			ftp.connect(host, port);
-		} catch (final SocketException e1) {
-			throw new ConnectionException();
-		} catch (final IOException e1) {
-			throw new ConnectionException();
-		}
-		
-		try {
-			if(!ftp.login(user, password)) {
-				throw new AuthentificationException(ftp);
-			}
-		} catch (final IOException e1) {
-			throw new AuthentificationException(ftp);
-		}
-		
-		ftp.enterLocalPassiveMode();
+		FTPClient ftp = ftpService.connect("agoryu", "");
 		
 		FTPFile[] result = null;
 		
 		try {
-			ftp.cwd(dir);
+			if(!HERE.equals(dir)) {
+				final String directory = ftp.printWorkingDirectory() + "/" + dir;
+				ftp.changeWorkingDirectory(directory);
+			}
+			
 			result = ftp.listFiles();
 		} catch (final IOException e) {
-			ftpService.disconnect(ftp);
 			throw new MFileNotFoundException();
 		}
 		
@@ -79,7 +59,10 @@ public class DirResource {
 			}
 		}
 		
-		ftpService.disconnect(ftp);
+		response.append(STOR_FORM);
+		/*var client = new XMLHttpRequest();
+
+client.open("PUT", url, false);*/
 		
 		return new String(response);
 	}

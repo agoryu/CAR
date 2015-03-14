@@ -1,6 +1,9 @@
 package rs;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -9,6 +12,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.net.ftp.FTPClient;
 
 import services.FTPService;
 
@@ -21,9 +26,23 @@ public class FTPRestService {
 	@POST
 	public Response connexion(@Context final UriInfo uriInfo,
 			@FormParam("name") final String name,
-			@FormParam("mdp") final String mdp) {
+			@FormParam("mdp") final String mdp,
+			@Context HttpServletResponse servletResponse) {
 
-		String response = "toto";
+		FTPClient ftp = ftpService.connect(name, mdp);
+		String response;
+		if(ftp.isConnected()) {
+			response = "ok";
+		} else {
+			response = "ko";
+		}
+		
+		try {
+			servletResponse.sendRedirect("http://localhost:8080/rest/api/dir/here");
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		return Response.created( uriInfo.getRequestUriBuilder().path( response ).build() ).build();
 	}

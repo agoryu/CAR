@@ -1,7 +1,6 @@
 package services;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -16,7 +15,7 @@ import exceptions.ConnectionException;
 public class FTPService {
 	
 	private static final String ERROR_CLOSE_CONNECTION = "Erreur lors de la fermeture de la connection";
-	private final ConcurrentMap< String, Socket > persons = new ConcurrentHashMap< String, Socket >(); 
+	private final ConcurrentMap< String, FTPClient > persons = new ConcurrentHashMap< String, FTPClient >(); 
 	
 	private static final String HOST = "localhost";
 	private static final int PORT = 21;
@@ -29,7 +28,11 @@ public class FTPService {
 		}
 	}
 	
-	public void connect(final String login, final String password) {
+	public FTPClient connect(final String login, final String password) {
+		
+		if(persons.containsKey(login)) {
+			return persons.get(login);
+		}
 		
 		final FTPClient ftp = new FTPClient();
 		
@@ -50,6 +53,8 @@ public class FTPService {
 		}
 
 		ftp.enterLocalPassiveMode();
+		persons.put(login, ftp);
+		return ftp;
 	}
 	
 }

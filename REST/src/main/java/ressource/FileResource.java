@@ -1,13 +1,15 @@
 package ressource;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketException;
+import java.io.InputStreamReader;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -17,9 +19,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.net.ftp.FTPClient;
 
 import services.FTPService;
-import exceptions.AuthentificationException;
 import exceptions.CommandException;
-import exceptions.ConnectionException;
 import exceptions.MFileNotFoundException;
 
 /**
@@ -35,6 +35,31 @@ public class FileResource {
 	private FTPService ftpService;
 	private static final String RETR = "RETR";
 	private static final String STOR = "STOR";
+	
+	/**
+	 * Méthode qui effectue la commande STOR
+	 * 
+	 * @param file
+	 *            fichier à envoyer
+	 * @return réponse sur la réussite de l'envoie
+	 */
+	@POST
+	@Produces({ MediaType.TEXT_HTML })
+	public String putFile(@PathParam("file") final String file) {
+
+		//TODO anonymous ne peut pas faire de stor
+		FTPClient ftp = ftpService.connect("agoryu", "");
+
+		try {
+			InputStream ips=new FileInputStream(file);
+			ftp.storeFile(file, ips);
+		} catch (final IOException e) {
+			throw new CommandException(STOR);
+		}
+
+		return file;
+
+	}
 
 	/**
 	 * Méthode qui effectue la commande RETR
@@ -48,46 +73,26 @@ public class FileResource {
 	@Path("/{file}")
 	public String getFile(@PathParam("file") final String file) {
 
-		String host = "ftp.univ-lille1.fr";
-		String user = "anonymous";
-		String password = "link";
-		int port = 21;
+		FTPClient ftp = ftpService.connect("agoryu", "");
 
-		final FTPClient ftp = new FTPClient();
-		try {
-			ftp.connect(host, port);
-		} catch (final SocketException e1) {
-			throw new ConnectionException();
-		} catch (final IOException e1) {
-			throw new ConnectionException();
-		}
-
-		try {
-			if (!ftp.login(user, password)) {
-				throw new AuthentificationException(ftp);
-			}
-		} catch (final IOException e1) {
-			throw new AuthentificationException(ftp);
-		}
-
-		ftp.enterLocalPassiveMode();
-
-		byte b[] = new byte[6400];
+		String response = "";
 
 		InputStream in = null;
 		try {
 			in = ftp.retrieveFileStream(file);
-			in.read(b);
+			InputStreamReader isr = new InputStreamReader(in);
+			BufferedReader buff = new BufferedReader(isr);
+			
+			String tmp;
+			while((tmp = buff.readLine()) != null) {
+				response += tmp;
+			}
+			
 		} catch (final IOException e2) {
-			ftpService.disconnect(ftp);
 			throw new CommandException(RETR);
 		}
 
-		final String response = new String(b);
-
-		ftpService.disconnect(ftp);
-
-		return new String(response);
+		return response;
 	}
 
 	/**
@@ -100,30 +105,10 @@ public class FileResource {
 	@Path("/{file}")
 	@DELETE
 	public Response deletePerson(@PathParam("file") final String file) {
-		String host = "ftp.univ-lille1.fr";
-		String user = "anonymous";
-		String password = "link";
-		int port = 21;
+		
+
+		FTPClient ftp = ftpService.connect("agoryu", "");
 		boolean response = false;
-
-		final FTPClient ftp = new FTPClient();
-		try {
-			ftp.connect(host, port);
-		} catch (final SocketException e1) {
-			throw new ConnectionException();
-		} catch (final IOException e1) {
-			throw new ConnectionException();
-		}
-
-		try {
-			if (!ftp.login(user, password)) {
-				throw new AuthentificationException(ftp);
-			}
-		} catch (final IOException e1) {
-			throw new AuthentificationException(ftp);
-		}
-
-		ftp.enterLocalPassiveMode();
 
 		try {
 			response = ftp.deleteFile(file);
@@ -137,52 +122,4 @@ public class FileResource {
 
 		return Response.notModified().build();
 	}
-
-	/**
-	 * Méthode qui effectue la commande STOR
-	 * 
-	 * @param file
-	 *            fichier à envoyer
-	 * @return réponse sur la réussite de l'envoie
-	 */
-	@PUT
-	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	@Path("/{file}")
-	public String putFile(@PathParam("file") final String file) {
-
-		String host = "ftp.univ-lille1.fr";
-		String user = "anonymous";
-		String password = "link";
-		int port = 21;
-
-		final FTPClient ftp = new FTPClient();
-		try {
-			ftp.connect(host, port);
-		} catch (final SocketException e1) {
-			throw new ConnectionException();
-		} catch (final IOException e1) {
-			throw new ConnectionException();
-		}
-
-		try {
-			if (!ftp.login(user, password)) {
-				throw new AuthentificationException(ftp);
-			}
-		} catch (final IOException e1) {
-			throw new AuthentificationException(ftp);
-		}
-
-		ftp.enterLocalPassiveMode();
-
-		try {
-			ftp.stor(file);
-		} catch (final IOException e) {
-			ftpService.disconnect(ftp);
-			throw new CommandException(STOR);
-		}
-
-		return file;
-
-	}
-
 }

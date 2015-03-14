@@ -17,6 +17,7 @@ import org.springframework.context.annotation.DependsOn;
 import ressource.ConnexionResource;
 import ressource.DirResource;
 import ressource.FileResource;
+import ressource.StorFormRessource;
 import rs.FTPRestService;
 import rs.JaxRsApiApplication;
 import services.FTPService;
@@ -38,6 +39,7 @@ public class AppConfig {
 		List<Object> serviceBeans = new ArrayList<Object>();
 		serviceBeans.add(ftpRestService());
 		serviceBeans.add(new ConnexionResource());
+		serviceBeans.add(new StorFormRessource());
 		serviceBeans.add(dirResource());
 		serviceBeans.add(fileResource());
 		
