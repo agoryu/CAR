@@ -1,7 +1,12 @@
 package command;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import file.FileManagement;
 import ftp.InfoConnection;
@@ -52,22 +57,46 @@ public class FtpRetr extends FtpCommand {
 		final FileManagement management = new FileManagement();
 		final byte[] data = management.readFile(info.getDirectory() + argument);
 
-		Socket socket = null;
-
+		/*Socket socket = null;
+		
 		try {
 			socket = new Socket(ipDownload, portDownload);
+			System.out.println("sloupy 2");
 		} catch (final IOException e) {
+			System.out.println("sloupy");
 			info.getMessageMan().sendMessage(ERROR_CONNECTION);
 			return;
-		}
+		}*/
 
 		info.getMessageMan().sendMessage(BEGIN_CONNECTION_DATA);
 
-		final MessageManager mm = new MessageManager(socket);
+		/*final MessageManager mm = new MessageManager(socket);
 		mm.sendMessageByte(data);
 
 		if (socket != null) {
 			mm.closeConnection();
+		}*/
+		DatagramPacket dp = null;
+		DatagramSocket ds = null;
+		
+		try {
+			dp = new DatagramPacket(data, data.length, InetAddress.getByAddress(ipDownload.getBytes()), portDownload);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			ds = new DatagramSocket(portDownload);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			ds.send(dp);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		info.getMessageMan().sendMessage(END_CONNECTION_DATA);

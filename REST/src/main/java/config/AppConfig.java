@@ -14,9 +14,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
-import ressource.FileRessource;
+import ressource.ConnexionResource;
+import ressource.DirResource;
+import ressource.FileResource;
 import rs.FTPRestService;
 import rs.JaxRsApiApplication;
+import services.FTPService;
 
 @Configuration
 public class AppConfig {
@@ -33,12 +36,11 @@ public class AppConfig {
 						JAXRSServerFactoryBean.class);
 
 		List<Object> serviceBeans = new ArrayList<Object>();
-		final FileRessource test = new FileRessource();
-		test.setName("hunter");
-		test.setContent("jaggi rathian lagiacrus");
-		serviceBeans.add(test);
-		serviceBeans.add(new FTPRestService(serviceBeans));
-
+		serviceBeans.add(ftpRestService());
+		serviceBeans.add(new ConnexionResource());
+		serviceBeans.add(dirResource());
+		serviceBeans.add(fileResource());
+		
 		factory.setServiceBeans(serviceBeans);
 		factory.setAddress("/" + factory.getAddress());
 		factory.setProviders(Arrays.<Object> asList(jsonProvider()));
@@ -51,8 +53,23 @@ public class AppConfig {
 	}
 
 	@Bean
-	public FTPRestService ftpRestService(final List<Object> lRessource) {
-		return new FTPRestService(lRessource);
+	public FTPRestService ftpRestService() {
+		return new FTPRestService();
+	}
+	
+	@Bean
+	public FTPService ftpService() {
+		return new FTPService();
+	}
+	
+	@Bean
+	public DirResource dirResource() {
+		return new DirResource();
+	}
+	
+	@Bean
+	public FileResource fileResource() {
+		return new FileResource();
 	}
 
 	@Bean
