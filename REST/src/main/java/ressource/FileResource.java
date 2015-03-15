@@ -1,25 +1,23 @@
 package ressource;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.net.ftp.FTPClient;
 
 import services.FTPService;
-import exceptions.CommandException;
 import exceptions.MFileNotFoundException;
 
 /**
@@ -31,11 +29,11 @@ import exceptions.MFileNotFoundException;
 @Path("/file")
 public class FileResource {
 
+	private static final String LOCAL_ADRESS = "http://localhost:8080/rest/api/dir/here";
 	@Inject
 	private FTPService ftpService;
-	private static final String RETR = "RETR";
-	private static final String STOR = "STOR";
 	
+
 	/**
 	 * Méthode qui effectue la commande STOR
 	 * 
@@ -43,18 +41,18 @@ public class FileResource {
 	 *            fichier à envoyer
 	 * @return réponse sur la réussite de l'envoie
 	 */
-	@POST
 	@Produces({ MediaType.TEXT_HTML })
-	public String putFile(@PathParam("file") final String file) {
-
-		//TODO anonymous ne peut pas faire de stor
-		FTPClient ftp = ftpService.connect("agoryu", "");
-
+	@POST
+	public String putFile(@FormParam("file") final String file,
+							@Context HttpServletResponse servletResponse) {
+		
+		ftpService.stor(file, "agoryu");
+		
 		try {
-			InputStream ips=new FileInputStream(file);
-			ftp.storeFile(file, ips);
+			servletResponse.sendRedirect(LOCAL_ADRESS);
 		} catch (final IOException e) {
-			throw new CommandException(STOR);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return file;
@@ -73,26 +71,7 @@ public class FileResource {
 	@Path("/{file}")
 	public String getFile(@PathParam("file") final String file) {
 
-		FTPClient ftp = ftpService.connect("agoryu", "");
-
-		String response = "";
-
-		InputStream in = null;
-		try {
-			in = ftp.retrieveFileStream(file);
-			InputStreamReader isr = new InputStreamReader(in);
-			BufferedReader buff = new BufferedReader(isr);
-			
-			String tmp;
-			while((tmp = buff.readLine()) != null) {
-				response += tmp;
-			}
-			
-		} catch (final IOException e2) {
-			throw new CommandException(RETR);
-		}
-
-		return response;
+		return ftpService.retr(file, "agoryu");
 	}
 
 	/**
@@ -105,7 +84,6 @@ public class FileResource {
 	@Path("/{file}")
 	@DELETE
 	public Response deletePerson(@PathParam("file") final String file) {
-		
 
 		FTPClient ftp = ftpService.connect("agoryu", "");
 		boolean response = false;
@@ -121,5 +99,8 @@ public class FileResource {
 		}
 
 		return Response.notModified().build();
+		/*var client = new XMLHttpRequest();
+
+		client.open("PUT", url, false);*/
 	}
 }

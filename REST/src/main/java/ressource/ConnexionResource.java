@@ -18,7 +18,7 @@ public class ConnexionResource {
 				
 				+ "<p> <label for=\"pseudo\">Votre mot de passe :</label>"
 				+ "<input type=\"password\" name=\"mdp\" id=\"mdp\" placeholder=\"password\" size=\"30\""
-				+ " maxlength=\"20\" /></p><input type=\"submit\" value=\"Envoyer\" /></form>";
+				+ " maxlength=\"20\" /></p><input type=\"submit\" value=\"Connection\" /></form>";
 	}
 
 }

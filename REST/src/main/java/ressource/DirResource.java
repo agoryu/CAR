@@ -60,9 +60,6 @@ public class DirResource {
 		}
 		
 		response.append(STOR_FORM);
-		/*var client = new XMLHttpRequest();
-
-client.open("PUT", url, false);*/
 		
 		return new String(response);
 	}
