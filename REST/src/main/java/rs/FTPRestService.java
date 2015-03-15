@@ -20,6 +20,7 @@ import services.FTPService;
 @Path("/ftp")
 public class FTPRestService {
 
+	private static final String CURRENT_DIRECTORY = "http://localhost:8080/rest/api/dir/here";
 	@Inject private FTPService ftpService;
 
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -38,7 +39,7 @@ public class FTPRestService {
 		}
 		
 		try {
-			servletResponse.sendRedirect("http://localhost:8080/rest/api/dir/here");
+			servletResponse.sendRedirect(CURRENT_DIRECTORY);
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

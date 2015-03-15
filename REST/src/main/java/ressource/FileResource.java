@@ -41,7 +41,7 @@ public class FileResource {
 	 *            fichier à envoyer
 	 * @return réponse sur la réussite de l'envoie
 	 */
-	@Produces({ MediaType.TEXT_HTML })
+	@Produces({ MediaType.APPLICATION_JSON })
 	@POST
 	public String putFile(@FormParam("file") final String file,
 							@Context HttpServletResponse servletResponse) {
@@ -53,6 +53,7 @@ public class FileResource {
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
 
 		return file;
@@ -83,6 +84,7 @@ public class FileResource {
 	 */
 	@Path("/{file}")
 	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON })
 	public Response deletePerson(@PathParam("file") final String file) {
 
 		FTPClient ftp = ftpService.connect("agoryu", "");
