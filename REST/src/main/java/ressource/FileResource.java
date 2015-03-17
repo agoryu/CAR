@@ -69,10 +69,10 @@ public class FileResource {
 	 */
 	@GET
 	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
-	@Path("/{file}")
-	public String getFile(@PathParam("file") final String file) {
+	@Path("{login}/{file}")
+	public String getFile(@PathParam("file") final String file, @PathParam("login") final String login) {
 
-		return ftpService.retr(file, "agoryu");
+		return ftpService.retr(file, login);
 	}
 
 	/**

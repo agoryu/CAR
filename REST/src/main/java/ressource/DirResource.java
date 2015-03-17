@@ -30,9 +30,9 @@ public class DirResource {
 	 */
 	@GET
 	@Produces({ MediaType.TEXT_HTML })
-	@Path("/{dir}")
-	public String getDirContent(@PathParam("dir") final String dir) {
+	@Path("{login}/{dir}")
+	public String getDirContent(@PathParam("dir") final String dir, @PathParam("login") final String login) {
 
-		return ftpService.list(dir, "agoryu");
+		return ftpService.list(dir, login);
 	}
 }

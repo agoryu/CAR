@@ -195,10 +195,10 @@ public class FTPService {
 			for (final FTPFile file : result) {
 				final String name = file.getName();
 				if (file.isDirectory()) {
-					response.append(DIR_PATH_LINK + name + "\">D " + name
+					response.append(DIR_PATH_LINK + login + "/" + name + "\">D " + name
 							+ "</a></br>");
 				} else {
-					response.append(FILE_PATH_LINK + name + "\">F " + name
+					response.append(FILE_PATH_LINK + login + "/" + name + "\">F " + name
 							+ "</a></br>");
 				}
 			}
