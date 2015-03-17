@@ -39,7 +39,7 @@ public class FTPRestService {
 		}
 		
 		try {
-			servletResponse.sendRedirect(CURRENT_DIRECTORY);
+			servletResponse.sendRedirect("http://localhost:8080/rest/api/dir/"+ name +"/here");
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
