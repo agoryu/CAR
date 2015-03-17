@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_6I6pULv2EeSV_J-HaTYM5Q" name="model">
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_6I6pULv2EeSV_J-HaTYM5Q" name="model">
   <packagedElement xmi:type="uml:Package" xmi:id="_CKBZALv3EeSV_J-HaTYM5Q" name="application">
     <packagedElement xmi:type="uml:Class" xmi:id="_8EYwILv5EeSMf9yPZaHdng" name="Starter">
       <ownedOperation xmi:type="uml:Operation" xmi:id="_M5r5ULv6EeSMf9yPZaHdng" name="main"/>
@@ -8,46 +8,97 @@
   <packagedElement xmi:type="uml:Package" xmi:id="_OiZq8Lv3EeSV_J-HaTYM5Q" name="config">
     <packagedElement xmi:type="uml:Class" xmi:id="_iMZB8Lv6EeSMf9yPZaHdng" name="AppConfig"/>
   </packagedElement>
-  <packagedElement xmi:type="uml:Package" xmi:id="_YC2GcLv3EeSV_J-HaTYM5Q" name="model">
-    <packagedElement xmi:type="uml:Class" xmi:id="_N8pLgLxEEeSP37F5cslvng" name="SocketManager">
-      <ownedOperation xmi:type="uml:Operation" xmi:id="_wAay4LxEEeSP37F5cslvng" name="sendMessage"/>
-      <ownedOperation xmi:type="uml:Operation" xmi:id="_7P5jELxEEeSP37F5cslvng" name="receiveMessage"/>
-    </packagedElement>
-  </packagedElement>
   <packagedElement xmi:type="uml:Package" xmi:id="_yisiALv6EeSMf9yPZaHdng" name="ressource">
-    <packagedElement xmi:type="uml:Class" xmi:id="_0BSm8Lv6EeSMf9yPZaHdng" name="FileRest">
-      <generalization xmi:type="uml:Generalization" xmi:id="_RHWXILv7EeSMf9yPZaHdng" general="_535N8Lv6EeSMf9yPZaHdng"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_2iWOcLv6EeSMf9yPZaHdng" name="DirResource">
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_xJxLAMxzEeSXn9-WC5fbEQ" name="getDirContent">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_xJxLAcxzEeSXn9-WC5fbEQ" name="dir"/>
+      </ownedOperation>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_2iWOcLv6EeSMf9yPZaHdng" name="DirRest">
-      <generalization xmi:type="uml:Generalization" xmi:id="_R0w2wLv7EeSMf9yPZaHdng" general="_535N8Lv6EeSMf9yPZaHdng"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_0BSm8Lv6EeSMf9yPZaHdng" name="FileResource">
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_ANeawMx0EeSXn9-WC5fbEQ" name="putFile">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_ANeawcx0EeSXn9-WC5fbEQ" name="file"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_ANeawsx0EeSXn9-WC5fbEQ" name="servletResponse"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_Goc6IMx0EeSXn9-WC5fbEQ" name="getFile">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_Goc6Icx0EeSXn9-WC5fbEQ" name="file"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_M6eR0Mx0EeSXn9-WC5fbEQ" name="deleteFile">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_M6eR0cx0EeSXn9-WC5fbEQ" name="file"/>
+      </ownedOperation>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_535N8Lv6EeSMf9yPZaHdng" name="RessourceRest" isAbstract="true">
-      <ownedAttribute xmi:type="uml:ExtensionEnd" xmi:id="_fOI2MLv8EeSMf9yPZaHdng" name="fileName" visibility="protected"/>
-      <ownedOperation xmi:type="uml:Operation" xmi:id="_ZdFTALv7EeSMf9yPZaHdng" name="getName"/>
-      <ownedOperation xmi:type="uml:Operation" xmi:id="_rYS7YLv7EeSMf9yPZaHdng" name="getContents" isAbstract="true"/>
-      <ownedOperation xmi:type="uml:Operation" xmi:id="_Klv14Lv8EeSMf9yPZaHdng" name="readContents" visibility="protected" isAbstract="true"/>
-    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_U6324Mx0EeSXn9-WC5fbEQ" name="ConnexionResource"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_XDJK8Mx0EeSXn9-WC5fbEQ" name="StorFormResource"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Package" xmi:id="_7V81cLv8EeSMf9yPZaHdng" name="rs">
-    <packagedElement xmi:type="uml:Class" xmi:id="_9ZkTALv8EeSMf9yPZaHdng" name="FTPRestService"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_9ZkTALv8EeSMf9yPZaHdng" name="FTPRestService">
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_ZaggYMxzEeSXn9-WC5fbEQ" name="connection">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_ZahHcMxzEeSXn9-WC5fbEQ" name="login"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_ZahHccxzEeSXn9-WC5fbEQ" name="password"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_dpkh0MxzEeSXn9-WC5fbEQ" name="uriInfo"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_fHTrIMxzEeSXn9-WC5fbEQ" name="servletResponse"/>
+      </ownedOperation>
+    </packagedElement>
     <packagedElement xmi:type="uml:Class" xmi:id="_Dz3c8Lv9EeSMf9yPZaHdng" name="JaxRsApiApplication"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Package" xmi:id="_YBXRALv9EeSMf9yPZaHdng" name="service">
-    <ownedComment xmi:type="uml:Comment" xmi:id="__aWCgLv9EeSMf9yPZaHdng">
-      <body> application du pattern chaine de responsabilité
-</body>
-    </ownedComment>
-    <ownedComment xmi:type="uml:Comment" xmi:id="_70JicLv-EeSMf9yPZaHdng">
-      <body> ...</body>
-    </ownedComment>
-    <packagedElement xmi:type="uml:Interface" xmi:id="_68W0QLv9EeSMf9yPZaHdng" name="FTPCommandService">
-      <ownedAttribute xmi:type="uml:ExtensionEnd" xmi:id="_PJe04Lv-EeSMf9yPZaHdng" name="execute" isStatic="true"/>
-      <ownedAttribute xmi:type="uml:ExtensionEnd" xmi:id="_TXUHQLv-EeSMf9yPZaHdng" name="action" visibility="protected"/>
-      <ownedAttribute xmi:type="uml:ExtensionEnd" xmi:id="_VNBrsLv-EeSMf9yPZaHdng" name="next" visibility="protected"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_vWsVwMxxEeSXn9-WC5fbEQ" name="FTPService">
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_oVDXoMx0EeSXn9-WC5fbEQ" name="fileResource" type="_0BSm8Lv6EeSMf9yPZaHdng" association="_oVElwMx0EeSXn9-WC5fbEQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_oVDXocx0EeSXn9-WC5fbEQ" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_oVDXosx0EeSXn9-WC5fbEQ" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_qk-y4Mx0EeSXn9-WC5fbEQ" name="dirResource" type="_2iWOcLv6EeSMf9yPZaHdng" association="_qlB2MMx0EeSXn9-WC5fbEQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qk-y4cx0EeSXn9-WC5fbEQ" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_qk-y4sx0EeSXn9-WC5fbEQ" value="1"/>
+      </ownedAttribute>
+      <ownedAttribute xmi:type="uml:Property" xmi:id="_Q0HncMx1EeSXn9-WC5fbEQ" name="fTPRestService" type="_9ZkTALv8EeSMf9yPZaHdng" association="_Q0I1kMx1EeSXn9-WC5fbEQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Q0Hnccx1EeSXn9-WC5fbEQ" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Q0Hncsx1EeSXn9-WC5fbEQ" value="1"/>
+      </ownedAttribute>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_G9VP4MxyEeSXn9-WC5fbEQ" name="connect">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_V31gUMxyEeSXn9-WC5fbEQ" name="login"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_Xewa0MxyEeSXn9-WC5fbEQ" name="password"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_bj7gcMxyEeSXn9-WC5fbEQ" name="ftp" direction="out"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_2d2wQMxyEeSXn9-WC5fbEQ" name="stor">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_2d2wQcxyEeSXn9-WC5fbEQ" name="filename"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_2d2wQsxyEeSXn9-WC5fbEQ" name="login"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="__IhaUMxyEeSXn9-WC5fbEQ" name="retr">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="__IhaUcxyEeSXn9-WC5fbEQ" name="filename"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="__IhaUsxyEeSXn9-WC5fbEQ" name="login"/>
+      </ownedOperation>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_D4ko8MxzEeSXn9-WC5fbEQ" name="list">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_GZXxwMxzEeSXn9-WC5fbEQ" name="dir"/>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_HUogIMxzEeSXn9-WC5fbEQ" name="login"/>
+      </ownedOperation>
     </packagedElement>
-    <packagedElement xmi:type="uml:Class" xmi:id="_khcQ8Lv-EeSMf9yPZaHdng" name="FTPUser"/>
-    <packagedElement xmi:type="uml:Realization" xmi:id="_2c6_ELv-EeSMf9yPZaHdng" client="_khcQ8Lv-EeSMf9yPZaHdng" supplier="_68W0QLv9EeSMf9yPZaHdng"/>
-    <packagedElement xmi:type="uml:Class" xmi:id="_4M5u8Lv-EeSMf9yPZaHdng" name="FTPCdup"/>
-    <packagedElement xmi:type="uml:Realization" xmi:id="_6_cIALv-EeSMf9yPZaHdng" client="_4M5u8Lv-EeSMf9yPZaHdng" supplier="_68W0QLv9EeSMf9yPZaHdng"/>
+    <packagedElement xmi:type="uml:Association" xmi:id="_oVElwMx0EeSXn9-WC5fbEQ" memberEnd="_oVElwcx0EeSXn9-WC5fbEQ _oVDXoMx0EeSXn9-WC5fbEQ">
+      <name xsi:nil="true"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_oVElwcx0EeSXn9-WC5fbEQ" name="fTPService" type="_vWsVwMxxEeSXn9-WC5fbEQ" association="_oVElwMx0EeSXn9-WC5fbEQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_oVFM0Mx0EeSXn9-WC5fbEQ" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_oVFM0cx0EeSXn9-WC5fbEQ" value="1"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_qlB2MMx0EeSXn9-WC5fbEQ" memberEnd="_qlB2Mcx0EeSXn9-WC5fbEQ _qk-y4Mx0EeSXn9-WC5fbEQ">
+      <name xsi:nil="true"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_qlB2Mcx0EeSXn9-WC5fbEQ" name="fTPService" type="_vWsVwMxxEeSXn9-WC5fbEQ" association="_qlB2MMx0EeSXn9-WC5fbEQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_qlB2Msx0EeSXn9-WC5fbEQ" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_qlB2M8x0EeSXn9-WC5fbEQ" value="1"/>
+      </ownedEnd>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_Q0I1kMx1EeSXn9-WC5fbEQ" memberEnd="_Q0I1kcx1EeSXn9-WC5fbEQ _Q0HncMx1EeSXn9-WC5fbEQ">
+      <name xsi:nil="true"/>
+      <ownedEnd xmi:type="uml:Property" xmi:id="_Q0I1kcx1EeSXn9-WC5fbEQ" name="fTPService" type="_vWsVwMxxEeSXn9-WC5fbEQ" association="_Q0I1kMx1EeSXn9-WC5fbEQ">
+        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Q0I1ksx1EeSXn9-WC5fbEQ" value="1"/>
+        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Q0I1k8x1EeSXn9-WC5fbEQ" value="1"/>
+      </ownedEnd>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Package" xmi:id="_yPPv4Mx0EeSXn9-WC5fbEQ" name="exception">
+    <packagedElement xmi:type="uml:Class" xmi:id="_3vynUMx0EeSXn9-WC5fbEQ" name="AuthentificationException"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_8vk7EMx0EeSXn9-WC5fbEQ" name="CommandException"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_D4jv8Mx1EeSXn9-WC5fbEQ" name="ConnectionException"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_GGaHkMx1EeSXn9-WC5fbEQ" name="MFileNotFoundException"/>
+    <packagedElement xmi:type="uml:Class" xmi:id="_LW7mAMx1EeSXn9-WC5fbEQ" name="NoAutorisationException"/>
   </packagedElement>
 </uml:Model>

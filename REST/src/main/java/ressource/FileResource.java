@@ -85,7 +85,7 @@ public class FileResource {
 	@Path("/{file}")
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response deletePerson(@PathParam("file") final String file) {
+	public Response deleteFile(@PathParam("file") final String file) {
 
 		FTPClient ftp = ftpService.connect("agoryu", "");
 		boolean response = false;
