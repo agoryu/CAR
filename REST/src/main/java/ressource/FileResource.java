@@ -32,7 +32,6 @@ public class FileResource {
 	private static final String LOCAL_ADRESS = "http://localhost:8080/rest/api/dir/here";
 	@Inject
 	private FTPService ftpService;
-	
 
 	/**
 	 * Méthode qui effectue la commande STOR
@@ -44,17 +43,9 @@ public class FileResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	@POST
 	public String putFile(@FormParam("file") final String file,
-							@Context HttpServletResponse servletResponse) {
-		
-		ftpService.stor(file, "agoryu");
-		
-		try {
-			servletResponse.sendRedirect(LOCAL_ADRESS);
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+			@Context HttpServletResponse servletResponse) {
+
+		ftpService.stor(file, "");
 
 		return file;
 
@@ -70,9 +61,15 @@ public class FileResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_OCTET_STREAM })
 	@Path("{login}/{file}")
-	public String getFile(@PathParam("file") final String file, @PathParam("login") final String login) {
+	public String getFile(@PathParam("file") final String file,
+			@PathParam("login") final String login,
+			@Context HttpServletResponse servletResponse) {
 
-		return ftpService.retr(file, login);
+		System.out.println("debut");
+		final String result = ftpService.retr(file, login);
+
+		System.out.println("fin");
+		return result;
 	}
 
 	/**
@@ -82,12 +79,13 @@ public class FileResource {
 	 *            fichier à supprimer
 	 * @return une réponse à la suppression du fichier
 	 */
-	@Path("/{file}")
+	@Path("{file}/{login}")
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response deleteFile(@PathParam("file") final String file) {
+	public Response deleteFile(@PathParam("file") final String file,
+			@PathParam("login") final String login) {
 
-		FTPClient ftp = ftpService.connect("agoryu", "");
+		FTPClient ftp = ftpService.connect(login, "");
 		boolean response = false;
 
 		try {
@@ -101,8 +99,5 @@ public class FileResource {
 		}
 
 		return Response.notModified().build();
-		/*var client = new XMLHttpRequest();
-
-		client.open("PUT", url, false);*/
 	}
 }

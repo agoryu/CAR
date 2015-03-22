@@ -28,10 +28,11 @@ import exceptions.NoAutorisationException;
 @Service
 public class FTPService {
 
+	private static final String PWD = "PWD";
 	private static final String STOR = "STOR";
 	private static final String RETR = "RETR";
 	private static final String PARENT_LINK = "<a href=\"http://localhost:8080/rest/api/dir/p\"/>..</a></br>";
-	private static final String HERE = "here";
+	private static final String HERE = "";
 	private static final String STOR_FORM = "</br><a href=\"http://localhost:8080/rest/api/formStor\"> Add </a>";
 	private static final String FILE_PATH_LINK = "<a href=\"http://localhost:8080/rest/api/file/";
 	private static final String DIR_PATH_LINK = "<a href=\"http://localhost:8080/rest/api/dir/";
@@ -91,8 +92,9 @@ public class FTPService {
 	 * @param login
 	 *            Nom de l'utilisateur qui utilise l'action
 	 */
-	public void stor(final String filename, final String login) {
+	public void stor(final String filename, String login) {
 		
+		login = persons.keySet().iterator().next();
 		if (login == null || login == "") {
 			throw new ConnectionException();
 		}
@@ -140,7 +142,8 @@ public class FTPService {
 
 		InputStream in = null;
 		try {
-			in = ftp.retrieveFileStream(filename);
+			System.out.println(ftp.printWorkingDirectory() + "/" + filename);
+			in = ftp.retrieveFileStream(ftp.printWorkingDirectory() + "/" + filename);
 			InputStreamReader isr = new InputStreamReader(in);
 			BufferedReader buff = new BufferedReader(isr);
 
@@ -152,7 +155,7 @@ public class FTPService {
 		} catch (final IOException e2) {
 			throw new CommandException(RETR);
 		}
-
+		
 		return response;
 	}
 
@@ -171,7 +174,6 @@ public class FTPService {
 		FTPFile[] result = null;
 
 		try {
-			System.out.println(dir);
 			if ("p".equals(dir)) {
 				final String directory = ftp.printWorkingDirectory() + "/..";
 				ftp.changeWorkingDirectory(directory);
@@ -189,9 +191,14 @@ public class FTPService {
 		}
 
 		StringBuilder response = new StringBuilder();
+		try {
+			response.append("<h1> PATH : "+ ftp.printWorkingDirectory() +"</h1>");
+		} catch (IOException e) {
+			throw new CommandException(PWD);
+		}
 
 		if (result.length != 0) {
-			response.append(PARENT_LINK);
+			response.append("<a href=\"http://localhost:8080/rest/api/dir/p/"+login+"/p\"/>..</a></br>");
 			for (final FTPFile file : result) {
 				final String name = file.getName();
 				if (file.isDirectory()) {
