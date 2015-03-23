@@ -142,8 +142,7 @@ public class FTPService {
 
 		InputStream in = null;
 		try {
-			System.out.println(ftp.printWorkingDirectory() + "/" + filename);
-			in = ftp.retrieveFileStream(ftp.printWorkingDirectory() + "/" + filename);
+			in = ftp.retrieveFileStream("/" + filename);
 			InputStreamReader isr = new InputStreamReader(in);
 			BufferedReader buff = new BufferedReader(isr);
 
@@ -174,38 +173,23 @@ public class FTPService {
 		FTPFile[] result = null;
 
 		try {
-			if ("p".equals(dir)) {
-				final String directory = ftp.printWorkingDirectory() + "/..";
-				ftp.changeWorkingDirectory(directory);
-			}
-
-			if (!HERE.equals(dir)) {
-				final String directory = ftp.printWorkingDirectory() + "/"
-						+ dir;
-				ftp.changeWorkingDirectory(directory);
-			}
-
-			result = ftp.listFiles();
+			result = ftp.listFiles("/" + dir);
 		} catch (final IOException e) {
 			throw new MFileNotFoundException();
 		}
 
 		StringBuilder response = new StringBuilder();
-		try {
-			response.append("<h1> PATH : "+ ftp.printWorkingDirectory() +"</h1>");
-		} catch (IOException e) {
-			throw new CommandException(PWD);
-		}
-
+		response.append("<h1> PATH : "+ dir +"</h1>");
+		
 		if (result.length != 0) {
-			response.append("<a href=\"http://localhost:8080/rest/api/dir/p/"+login+"/p\"/>..</a></br>");
+			response.append("<a href=\"http://localhost:8080/rest/api/dir/"+login+"/"+ dir +"/..\"/>..</a></br>");
 			for (final FTPFile file : result) {
-				final String name = file.getName();
+				final String name = dir + "/" +file.getName();
 				if (file.isDirectory()) {
-					response.append(DIR_PATH_LINK + login + "/" + name + "\">D " + name
+					response.append(DIR_PATH_LINK + login + "/" + name + "\">D " + file.getName()
 							+ "</a></br>");
 				} else {
-					response.append(FILE_PATH_LINK + login + "/" + name + "\">F " + name
+					response.append(FILE_PATH_LINK + login + "/" + name + "\">F " + file.getName()
 							+ "</a></br>");
 				}
 			}
@@ -214,6 +198,27 @@ public class FTPService {
 		response.append(STOR_FORM);
 
 		return new String(response);
+	}
+	
+	/**
+	 * Suppression d'un fichier
+	 *
+	 * @param filename
+	 *            nom du fichier 
+	 * @return True si la suppression c'est passé correctement sinon False
+	 */
+	public boolean delete(final String filename,final String login) {
+		FTPClient ftp = connect(login, "");
+		
+		try {
+			return ftp.deleteFile(filename);
+		} catch (final IOException e) {
+			System.out.printf(
+					"Impossible de supprimer le fichier/répertoire %s.\n",
+					filename);
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }

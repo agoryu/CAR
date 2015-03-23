@@ -12,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -20,7 +21,6 @@ import services.FTPService;
 @Path("/ftp")
 public class FTPRestService {
 
-	private static final String CURRENT_DIRECTORY = "http://localhost:8080/rest/api/dir/here";
 	@Inject private FTPService ftpService;
 
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -31,21 +31,24 @@ public class FTPRestService {
 			@Context HttpServletResponse servletResponse) {
 
 		FTPClient ftp = ftpService.connect(name, mdp);
-		String response;
+		Response response = null;
 		if(ftp.isConnected()) {
-			response = "ok";
+			response = Response.ok().build();
 		} else {
-			response = "ko";
+			response = Response.status(Status.FORBIDDEN)
+					.entity("Impossible to connect you")
+					.build();
 		}
 		
 		try {
-			servletResponse.sendRedirect("http://localhost:8080/rest/api/dir/"+ name +"/here");
+			servletResponse.sendRedirect("http://localhost:8080/rest/api/dir/"+ name + ftp.printWorkingDirectory());
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			response = Response.status(Status.FORBIDDEN)
+					.entity("Error redirect")
+					.build();
 		}
 		
-		return Response.created( uriInfo.getRequestUriBuilder().path( response ).build() ).build();
+		return response;
 	}
 
 }
